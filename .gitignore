@@ -9,7 +9,8 @@ desktop.ini
 credentials.*
 
 # Claude Code 本地設定（含 permissions、可能記錄 token，絕不上雲）
-.claude/
+.claude/*
+!.claude/skills/
 
 # Node.js
 node_modules/
