@@ -14,3 +14,12 @@ credentials.*
 # Node.js
 node_modules/
 package-lock.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# 分析輸出（影片/報告因人而異，不上雲）
+*_analyzed.mp4
+*_analyzed_report.txt
