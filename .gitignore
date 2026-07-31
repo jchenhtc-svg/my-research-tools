@@ -26,3 +26,6 @@ __pycache__/
 測試輸出/
 tools/*/output/
 tools/*/測試輸出/
+tools/*/backend/uploads/
+tools/*/backend/results/
+tools/*/frontend/build/
