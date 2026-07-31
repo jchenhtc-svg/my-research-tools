@@ -325,7 +325,7 @@ class StrokeAnalyzer:
                 issues.append(FreestyleIssue(
                     'dropped_elbow',
                     ISSUE_TYPES['dropped_elbow']['severity'],
-                    f"Dropped elbow during catch (avg {avg_elbow:.0f}° - should be {ELBOW_ANGLE_OPTIMAL_MIN}-{ELBOW_ANGLE_OPTIMAL_MAX}°)",
+                    f"抓水時手肘下垂（平均{avg_elbow:.0f}° - 應為{ELBOW_ANGLE_OPTIMAL_MIN}-{ELBOW_ANGLE_OPTIMAL_MAX}°）",
                     ISSUE_TYPES['dropped_elbow']['tip'],
                     avg_elbow
                 ))
@@ -337,7 +337,7 @@ class StrokeAnalyzer:
                 issues.append(FreestyleIssue(
                     'flat_body',
                     ISSUE_TYPES['flat_body']['severity'],
-                    f"Limited body rotation ({avg_rotation:.0f}° avg - optimal {BODY_ROTATION_OPTIMAL_MIN}-{BODY_ROTATION_OPTIMAL_MAX}°)",
+                    f"身體轉肩幅度不足（平均{avg_rotation:.0f}° - 理想範圍{BODY_ROTATION_OPTIMAL_MIN}-{BODY_ROTATION_OPTIMAL_MAX}°）",
                     ISSUE_TYPES['flat_body']['tip'],
                     avg_rotation
                 ))
@@ -345,7 +345,7 @@ class StrokeAnalyzer:
                 issues.append(FreestyleIssue(
                     'over_rotation',
                     ISSUE_TYPES['over_rotation']['severity'],
-                    f"Over-rotation ({avg_rotation:.0f}° avg - optimal {BODY_ROTATION_OPTIMAL_MIN}-{BODY_ROTATION_OPTIMAL_MAX}°)",
+                    f"轉肩過度（平均{avg_rotation:.0f}° - 理想範圍{BODY_ROTATION_OPTIMAL_MIN}-{BODY_ROTATION_OPTIMAL_MAX}°）",
                     ISSUE_TYPES['over_rotation']['tip'],
                     avg_rotation
                 ))
@@ -357,7 +357,7 @@ class StrokeAnalyzer:
                 issues.append(FreestyleIssue(
                     'crossing_centerline',
                     ISSUE_TYPES['crossing_centerline']['severity'],
-                    f"Crossing centerline on entry ({max_crossing*100:.0f}% of frame width over center)",
+                    f"入水點過中線（超過畫面中線{max_crossing*100:.0f}%寬度）",
                     ISSUE_TYPES['crossing_centerline']['tip'],
                     max_crossing
                 ))
@@ -368,7 +368,7 @@ class StrokeAnalyzer:
                 issues.append(FreestyleIssue(
                     'head_lifting',
                     ISSUE_TYPES['head_lifting']['severity'],
-                    f"Head lifting during breathing ({self.metrics['head']['vertical_movement']*100:.0f}% vertical movement)",
+                    f"換氣時抬頭幅度過大（垂直移動{self.metrics['head']['vertical_movement']*100:.0f}%）",
                     ISSUE_TYPES['head_lifting']['tip'],
                     self.metrics['head']['vertical_movement']
                 ))
@@ -380,7 +380,7 @@ class StrokeAnalyzer:
                 issues.append(FreestyleIssue(
                     'slow_stroke_rate',
                     ISSUE_TYPES['slow_stroke_rate']['severity'],
-                    f"Stroke rate below optimal ({spm:.0f} SPM - optimal {STROKE_RATE_OPTIMAL_MIN}-{STROKE_RATE_OPTIMAL_MAX})",
+                    f"划頻低於理想值（{spm:.0f} SPM - 理想範圍{STROKE_RATE_OPTIMAL_MIN}-{STROKE_RATE_OPTIMAL_MAX}）",
                     ISSUE_TYPES['slow_stroke_rate']['tip'],
                     spm
                 ))
@@ -388,7 +388,7 @@ class StrokeAnalyzer:
                 issues.append(FreestyleIssue(
                     'fast_stroke_rate',
                     ISSUE_TYPES['fast_stroke_rate']['severity'],
-                    f"Stroke rate above optimal ({spm:.0f} SPM - optimal {STROKE_RATE_OPTIMAL_MIN}-{STROKE_RATE_OPTIMAL_MAX})",
+                    f"划頻高於理想值（{spm:.0f} SPM - 理想範圍{STROKE_RATE_OPTIMAL_MIN}-{STROKE_RATE_OPTIMAL_MAX}）",
                     ISSUE_TYPES['fast_stroke_rate']['tip'],
                     spm
                 ))
@@ -400,7 +400,7 @@ class StrokeAnalyzer:
                 issues.append(FreestyleIssue(
                     'excessive_knee_bend',
                     ISSUE_TYPES['excessive_knee_bend']['severity'],
-                    f"Excessive knee bend ({avg_knee:.0f}° - should be near {KNEE_ANGLE_OPTIMAL}°)",
+                    f"踢腿膝蓋彎曲過度（{avg_knee:.0f}° - 應接近{KNEE_ANGLE_OPTIMAL}°）",
                     ISSUE_TYPES['excessive_knee_bend']['tip'],
                     avg_knee
                 ))

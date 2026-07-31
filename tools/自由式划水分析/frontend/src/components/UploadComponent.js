@@ -24,7 +24,7 @@ function UploadComponent({ onFileSelected, onUploadComplete, selectedFile }) {
       onFileSelected(file);
       setError(null);
     } else {
-      setError('Please upload a valid video file (MP4, AVI, or MOV)');
+      setError('請上傳有效的影片檔案（MP4、AVI 或 MOV）');
     }
   };
 
@@ -34,7 +34,7 @@ function UploadComponent({ onFileSelected, onUploadComplete, selectedFile }) {
       onFileSelected(file);
       setError(null);
     } else {
-      setError('Please upload a valid video file (MP4, AVI, or MOV)');
+      setError('請上傳有效的影片檔案（MP4、AVI 或 MOV）');
     }
   };
 
@@ -63,11 +63,11 @@ function UploadComponent({ onFileSelected, onUploadComplete, selectedFile }) {
       if (response.ok) {
         onUploadComplete(data.video_id);
       } else {
-        setError(data.error || 'Upload failed. Please try again.');
+        setError(data.error || '上傳失敗，請再試一次。');
         setUploading(false);
       }
     } catch (err) {
-      setError('Network error. Please ensure the backend server is running.');
+      setError('連線錯誤，請確認後端伺服器有正常啟動。');
       setUploading(false);
     }
   };
@@ -98,14 +98,14 @@ function UploadComponent({ onFileSelected, onUploadComplete, selectedFile }) {
           </div>
           <div className="upload-text">
             <h3 style={{ color: dragging ? 'white' : '' }}>
-              {dragging ? 'Drop it like it\'s hot!' : 'Drop Your Swim Video Here'}
+              {dragging ? '放開就開始上傳！' : '把選手影片拖曳到這裡'}
             </h3>
             <p style={{ color: dragging ? 'rgba(255,255,255,0.9)' : '' }}>
-              {dragging ? 'Let go to upload' : 'Drag & drop or click to browse'}
+              {dragging ? '放開以上傳' : '拖曳檔案到這裡，或點擊選擇檔案'}
             </p>
             {!dragging && (
               <p style={{ fontSize: '0.9rem', color: '#999', marginTop: '10px' }}>
-                MP4, AVI, MOV • Max 500MB
+                MP4、AVI、MOV • 檔案上限 500MB
               </p>
             )}
           </div>
@@ -133,7 +133,7 @@ function UploadComponent({ onFileSelected, onUploadComplete, selectedFile }) {
                   {selectedFile.name}
                 </p>
                 <p style={{ margin: 0, fontSize: '0.95rem', color: '#666' }}>
-                  {formatFileSize(selectedFile.size)} • {selectedFile.type || 'Video file'}
+                  {formatFileSize(selectedFile.size)} • {selectedFile.type || '影片檔案'}
                 </p>
               </div>
             </div>
@@ -151,7 +151,7 @@ function UploadComponent({ onFileSelected, onUploadComplete, selectedFile }) {
               onMouseEnter={(e) => e.target.style.transform = 'scale(1.02)'}
               onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
             >
-              🚀 Analyze My Swim!
+              🚀 開始分析！
             </button>
           </div>
         )}
@@ -169,7 +169,7 @@ function UploadComponent({ onFileSelected, onUploadComplete, selectedFile }) {
           }}>
             <div style={{ fontSize: '2rem', marginRight: '15px' }}>⚠️</div>
             <div>
-              <strong>Oops!</strong> {error}
+              <strong>發生問題：</strong> {error}
             </div>
           </div>
         )}
@@ -185,15 +185,15 @@ function UploadComponent({ onFileSelected, onUploadComplete, selectedFile }) {
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
           <div style={{ fontSize: '2rem', marginRight: '10px' }}>💡</div>
           <h4 style={{ margin: 0, fontSize: '1.3rem', color: '#F57C00' }}>
-            Pro Tips for Best Results
+            拍攝建議（提升分析準確度）
           </h4>
         </div>
         <ul style={{ margin: '10px 0', paddingLeft: '45px', lineHeight: '1.8' }}>
-          <li><strong>Side angle</strong> - Film from the side at pool deck level</li>
-          <li><strong>Keep it steady</strong> - Use a tripod or rest your phone on something</li>
-          <li><strong>Good lighting</strong> - Outdoor daylight is perfect</li>
-          <li><strong>Multiple strokes</strong> - Capture at least 2-3 complete cycles</li>
-          <li><strong>Full body</strong> - Make sure your whole body is visible</li>
+          <li><strong>側面拍攝</strong>——在池邊與水面同高的位置側拍</li>
+          <li><strong>保持穩定</strong>——使用腳架，或把手機靠在固定物上</li>
+          <li><strong>光線充足</strong>——戶外自然光最理想，避免逆光</li>
+          <li><strong>多個划水週期</strong>——至少拍到2-3次完整划水</li>
+          <li><strong>全身入鏡</strong>——確保選手全程都在畫面內</li>
         </ul>
         <div style={{
           background: 'rgba(255,255,255,0.7)',
@@ -203,7 +203,7 @@ function UploadComponent({ onFileSelected, onUploadComplete, selectedFile }) {
           fontSize: '0.95rem',
           color: '#666'
         }}>
-          <strong>🎥 Quick tip:</strong> 10-15 seconds of footage is plenty. No need for a full lap!
+          <strong>🎥 小提醒：</strong>拍10-15秒就很夠了，不需要拍完整趟。
         </div>
       </div>
     </div>

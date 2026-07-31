@@ -38,37 +38,37 @@ class FeedbackGenerator:
         minor_issues = [i for i in issues if i.severity == SEVERITY_MINOR]
 
         # ====== HEADER WITH SCORE ======
-        report.append("🏊‍♂️ YOUR SWIM ANALYSIS")
+        report.append("🏊‍♂️ 您的游泳分析")
         report.append("")
-        report.append(f"Overall Technique Score: {rating}/10")
+        report.append(f"技術總評分：{rating}/10")
         report.append("")
 
         # ====== QUICK INSIGHT (THE HOOK) ======
         insight = self._generate_quick_insight(rating, critical_issues, moderate_issues)
         report.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-        report.append("📊 QUICK INSIGHT")
+        report.append("📊 快速洞察")
         report.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
         report.append(insight)
         report.append("")
 
         # ====== BIGGEST RED FLAG (if any) ======
         if critical_issues:
-            report.append("🚨 BIGGEST RED FLAG")
+            report.append("🚨 最大警訊")
             report.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
             top_issue = critical_issues[0]
             report.append(f"⚠️  {top_issue.description}")
             report.append("")
-            report.append(f"💡 HOW TO FIX IT:")
+            report.append(f"💡 如何改善：")
             report.append(f"   {top_issue.tip}")
             report.append("")
             if len(critical_issues) > 1:
-                report.append(f"   (+ {len(critical_issues) - 1} more critical issue{'s' if len(critical_issues) > 2 else ''} detected)")
+                report.append(f"   （還有{len(critical_issues) - 1}項其他關鍵問題）")
             report.append("")
 
         # ====== WHAT'S WORKING ======
         strengths = self._identify_strengths(metrics, issues)
         if strengths:
-            report.append("✅ WHAT'S WORKING")
+            report.append("✅ 做得好的地方")
             report.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
             for strength in strengths:
                 report.append(f"• {strength}")
@@ -76,27 +76,27 @@ class FeedbackGenerator:
 
         # ====== ACTION PLAN ======
         if critical_issues or moderate_issues:
-            report.append("🎯 YOUR ACTION PLAN")
+            report.append("🎯 您的行動計畫")
             report.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-            report.append("Focus on these in order:")
+            report.append("依序專注在這些項目：")
             report.append("")
 
             # Add critical issues
             for i, issue in enumerate(critical_issues, 1):
-                report.append(f"{i}. 🚨 FIX THIS FIRST: {issue.description}")
+                report.append(f"{i}. 🚨 優先修正：{issue.description}")
                 report.append(f"   → {issue.tip}")
                 report.append("")
 
             # Add top moderate issues
             start_num = len(critical_issues) + 1
             for i, issue in enumerate(moderate_issues[:2], start_num):  # Only top 2 moderate
-                report.append(f"{i}. ⚠️ IMPORTANT: {issue.description}")
+                report.append(f"{i}. ⚠️ 待加強：{issue.description}")
                 report.append(f"   → {issue.tip}")
                 report.append("")
 
         # ====== DETAILED BREAKDOWN (Collapsed by default in UI) ======
         if critical_issues or moderate_issues or minor_issues:
-            report.append("📋 DETAILED BREAKDOWN")
+            report.append("📋 詳細分析")
             report.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
             # Critical issues
@@ -124,23 +124,23 @@ class FeedbackGenerator:
                 report.append("")
 
         # ====== METRICS ======
-        report.append("📊 YOUR NUMBERS")
+        report.append("📊 您的數據")
         report.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
         report.append(self._format_metrics(metrics))
         report.append("")
 
         # ====== NO ISSUES CELEBRATION ======
         if not issues:
-            report.append("🏆 EXCELLENT TECHNIQUE!")
+            report.append("🏆 技術優秀！")
             report.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-            report.append("No major technique issues detected! Your freestyle form is solid.")
-            report.append("Keep up the great work and maintain that consistency!")
+            report.append("沒有偵測到重大技術問題！您的自由式姿勢很扎實。")
+            report.append("繼續保持這個水準！")
             report.append("")
 
         # ====== FOOTER WITH TIP ======
         report.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-        report.append("💡 PRO TIP: Focus on fixing one issue at a time.")
-        report.append("   Trying to change everything at once = slower progress!")
+        report.append("💡 小提醒：一次專注改善一個問題。")
+        report.append("   同時改太多項目反而會拖慢進步速度！")
         report.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
         return "\n".join(report)
@@ -162,9 +162,9 @@ class FeedbackGenerator:
         moderate_count = len([i for i in issues if i.severity == SEVERITY_MODERATE])
 
         summary = [
-            f"Score: {rating}/10",
-            f"Critical Issues: {critical_count}",
-            f"Areas for Improvement: {moderate_count}"
+            f"評分：{rating}/10",
+            f"關鍵問題：{critical_count}項",
+            f"待加強項目：{moderate_count}項"
         ]
 
         return " | ".join(summary)
@@ -195,23 +195,28 @@ class FeedbackGenerator:
 
     def _generate_quick_insight(self, rating: int, critical_issues: List, moderate_issues: List) -> str:
         """Generate a quick, shareable insight about the swim."""
+        from src.models.freestyle_rules import ISSUE_TYPES
+
+        def issue_name(issue):
+            return ISSUE_TYPES.get(issue.issue_type, {}).get('name', issue.issue_type)
+
         if rating >= 9:
-            return "🏆 Your technique is Olympic-level! Maintain this form and focus on consistency."
+            return "🏆 您的技術已達奧運等級！維持這個姿勢，專注在穩定性上。"
         elif rating >= 7:
             if critical_issues:
-                return f"💪 Solid foundation, but you're losing speed/efficiency due to: {critical_issues[0].issue_type.replace('_', ' ')}. Fix that and you'll see big gains!"
+                return f"💪 基礎很扎實，但「{issue_name(critical_issues[0])}」正在拖慢您的速度/效率。修正這點會有明顯進步！"
             else:
-                return "👍 Good technique overall! A few tweaks and you'll be swimming like a pro."
+                return "👍 整體技術不錯！稍微調整幾個地方就能更接近職業水準。"
         elif rating >= 5:
             if critical_issues:
-                return f"⚠️  Your biggest issue is: {critical_issues[0].issue_type.replace('_', ' ')}. This is costing you the most energy and speed. Focus here first!"
+                return f"⚠️  您最大的問題是：「{issue_name(critical_issues[0])}」。這是最耗費體力、拖慢速度的原因，優先處理這項！"
             else:
-                return "🔧 Several areas need work, but they're all fixable! Follow the action plan below."
+                return "🔧 有幾個地方需要加強，但都是可以改善的！請照下面的行動計畫執行。"
         else:
             if critical_issues:
-                return f"🚨 Red flag alert: {critical_issues[0].issue_type.replace('_', ' ')}. This is significantly impacting your swim. Let's fix it step by step!"
+                return f"🚨 警訊：「{issue_name(critical_issues[0])}」正嚴重影響您的游泳表現，讓我們一步一步修正！"
             else:
-                return "📚 You're just getting started! Follow the action plan and you'll see improvement quickly."
+                return "📚 您才剛起步！照著行動計畫執行，很快就能看到進步。"
 
     def _identify_strengths(self, metrics: Dict, issues: List[FreestyleIssue]) -> List[str]:
         """Identify what the swimmer is doing well."""
@@ -221,29 +226,29 @@ class FeedbackGenerator:
         if metrics.get('elbow', {}).get('avg_angle'):
             angle = metrics['elbow']['avg_angle']
             if 80 <= angle <= 100:
-                strengths.append("Great elbow catch angle - you're engaging your lats properly!")
+                strengths.append("抓水肘角掌握得很好——有正確運用背闊肌發力！")
 
         # Check body rotation
         if metrics.get('rotation', {}).get('avg_rotation'):
             rotation = metrics['rotation']['avg_rotation']
             if 45 <= rotation <= 60:
-                strengths.append("Excellent body rotation - you're using your core effectively!")
+                strengths.append("身體轉肩幅度很棒——核心運用得很有效率！")
 
         # Check head stability
         if metrics.get('head', {}).get('stability'):
             stability = metrics['head']['stability']
             if stability > 0.8:
-                strengths.append("Solid head position - you're maintaining good alignment!")
+                strengths.append("頭部位置很穩定——身體對齊維持得不錯！")
 
         # Check stroke rate
         if metrics.get('stroke_rate', {}).get('spm'):
             spm = metrics['stroke_rate']['spm']
             if 50 <= spm <= 60:
-                strengths.append("Optimal stroke rate - nice rhythm and tempo!")
+                strengths.append("划頻在理想範圍——節奏感很好！")
 
         # If no specific strengths but also few issues
         if not strengths and len(issues) <= 2:
-            strengths.append("Your overall form is consistent across the video!")
+            strengths.append("整支影片的動作維持得很一致！")
 
         return strengths
 
@@ -254,45 +259,45 @@ class FeedbackGenerator:
         # Elbow metrics
         if metrics.get('elbow', {}).get('avg_angle') is not None:
             elbow = metrics['elbow']
-            lines.append(f"🔸 Elbow Catch Angle:")
-            lines.append(f"   Average: {elbow['avg_angle']:.1f}° (optimal: 80-100°)")
+            lines.append(f"🔸 抓水肘角：")
+            lines.append(f"   平均：{elbow['avg_angle']:.1f}°（理想範圍：80-100°）")
             if elbow['left_avg'] and elbow['right_avg']:
-                lines.append(f"   Left: {elbow['left_avg']:.1f}° | Right: {elbow['right_avg']:.1f}°")
+                lines.append(f"   左手：{elbow['left_avg']:.1f}° | 右手：{elbow['right_avg']:.1f}°")
             lines.append("")
 
         # Body rotation
         if metrics.get('rotation', {}).get('avg_rotation') is not None:
             rotation = metrics['rotation']
-            lines.append(f"🔸 Body Rotation:")
-            lines.append(f"   Average: {rotation['avg_rotation']:.1f}° (optimal: 45-60°)")
-            lines.append(f"   Range: {rotation['min_rotation']:.1f}° - {rotation['max_rotation']:.1f}°")
+            lines.append(f"🔸 身體轉肩角度：")
+            lines.append(f"   平均：{rotation['avg_rotation']:.1f}°（理想範圍：45-60°）")
+            lines.append(f"   範圍：{rotation['min_rotation']:.1f}° - {rotation['max_rotation']:.1f}°")
             lines.append("")
 
         # Stroke rate
         if metrics.get('stroke_rate', {}).get('spm') is not None:
             sr = metrics['stroke_rate']
-            lines.append(f"🔸 Stroke Rate:")
-            lines.append(f"   {sr['spm']:.1f} strokes per minute (optimal: 50-60 SPM)")
-            lines.append(f"   Duration: {sr['duration']:.1f}s | Total strokes: {sr['total_strokes']}")
+            lines.append(f"🔸 划頻：")
+            lines.append(f"   每分鐘 {sr['spm']:.1f} 次划水（理想範圍：50-60 SPM）")
+            lines.append(f"   時長：{sr['duration']:.1f}秒 | 總划水次數：{sr['total_strokes']}")
             lines.append("")
 
         # Head stability
         if metrics.get('head', {}).get('stability') is not None:
             head = metrics['head']
             stability_pct = head['stability'] * 100
-            lines.append(f"🔸 Head Stability: {stability_pct:.1f}% (higher is better)")
+            lines.append(f"🔸 頭部穩定度：{stability_pct:.1f}%（越高越好）")
             lines.append("")
 
         # Kick
         if metrics.get('kick', {}).get('avg_knee_angle') is not None:
             kick = metrics['kick']
-            lines.append(f"🔸 Kick Mechanics:")
-            lines.append(f"   Knee angle: {kick['avg_knee_angle']:.1f}° (should be near 170°)")
+            lines.append(f"🔸 踢腿動作：")
+            lines.append(f"   膝關節角度：{kick['avg_knee_angle']:.1f}°（應接近170°）")
             lines.append("")
 
         # Video quality
         if metrics.get('valid_frame_ratio') is not None:
             valid_pct = metrics['valid_frame_ratio'] * 100
-            lines.append(f"🔸 Detection Quality: {valid_pct:.1f}% of frames analyzed")
+            lines.append(f"🔸 偵測品質：{valid_pct:.1f}% 的影格成功分析")
 
         return "\n".join(lines)
