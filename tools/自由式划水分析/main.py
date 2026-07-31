@@ -15,6 +15,7 @@ from src.video_processor import VideoProcessor
 from src.stroke_analyzer import StrokeAnalyzer
 from src.visualizer import Visualizer
 from src.feedback_generator import FeedbackGenerator
+from src.html_report import generate_html_report
 
 
 def main():
@@ -56,6 +57,18 @@ Examples:
         '--no-report',
         action='store_true',
         help='Skip text report, only generate annotated video'
+    )
+
+    parser.add_argument(
+        '--no-html',
+        action='store_true',
+        help='Skip the standalone HTML report (a double-click, no-server report page)'
+    )
+
+    parser.add_argument(
+        '--open',
+        action='store_true',
+        help='Open the generated HTML report in your browser when done'
     )
 
     args = parser.parse_args()
@@ -118,6 +131,19 @@ Examples:
                 f.write(report)
             print(f"Report saved to: {report_path}")
             print("")
+
+            if not args.no_html:
+                html_doc = generate_html_report(analysis_results, video_name=os.path.basename(args.video))
+                html_path = os.path.splitext(args.output)[0] + '_report.html'
+                with open(html_path, 'w', encoding='utf-8') as f:
+                    f.write(html_doc)
+                print(f"HTML report saved to: {html_path}")
+                print("(double-click it to open in your browser — no server needed)")
+                print("")
+
+                if args.open:
+                    import webbrowser
+                    webbrowser.open(f"file://{os.path.abspath(html_path)}")
         else:
             print("Step 3/4: Skipping report generation")
             print("")
