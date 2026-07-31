@@ -20,6 +20,9 @@ __pycache__/
 *.pyc
 .venv/
 
-# 分析輸出（影片/報告因人而異，不上雲）
+# 分析輸出（含可辨識選手影像，不上雲，僅本機保留）
 *_analyzed.mp4
 *_analyzed_report.txt
+測試輸出/
+tools/*/output/
+tools/*/測試輸出/
