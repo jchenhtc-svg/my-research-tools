@@ -74,8 +74,30 @@ npm start                        # 開瀏覽器到 http://localhost:3000
 
 前端預設會打 `http://localhost:5001/api`（見 `frontend/src/config.js`），本機測試不用改設定。
 
-## 部署到網路上給選手用
-repo裡已附 `Dockerfile`／`Procfile`／`render.yaml`／`railway.json`／`nixpacks.toml`，是原作者為 Render/Railway/HuggingFace Spaces 準備的部署設定，可以直接拿來部署成一個網址讓選手/助理教練直接上傳影片，不用碰終端機。部署時需要另外設定環境變數 `FLASK_ENV=production`、`FRONTEND_URL`（後端CORS允許的前端網域）。
+## 部署到網路上給選手用（雲端）
+repo裡已附 `Dockerfile`／`Procfile`／`render.yaml`／`railway.json`／`nixpacks.toml`，是原作者為 Render/Railway/HuggingFace Spaces 準備的部署設定。**安全性考量下建議選Render**（HF Spaces免費版預設公開可搜尋，不適合放選手影像）。部署時需要另外設定環境變數 `FLASK_ENV=production`、`FRONTEND_URL`（後端CORS允許的前端網域）。⚠️ 目前程式本身沒有任何登入驗證，正式對外部署前務必先加一層密碼保護。
+
+---
+
+# 現地版（單機打包，不經雲端，資料不離開現場）
+
+適合完全不想讓選手影像碰到任何第三方雲端的情境。把 `backend`＋`frontend` 包成**單一Docker容器**（同一個port同時提供API跟網頁），只要在一台電腦上啟動，同一個WiFi下的手機/平板都能連。
+
+## 使用方式（現場教練/助理，不需要懂程式）
+1. 該電腦第一次使用需先安裝 [Docker Desktop](https://www.docker.com/products/docker-desktop/)（一次性，免費）
+2. 雙擊 `啟動.command`（Mac）或 `啟動.bat`（Windows）
+3. 等它印出「啟動完成」，瀏覽器會自動打開 http://localhost:8080
+4. 同一個WiFi下的其他裝置，把 `localhost` 換成該電腦的區網IP（例如 `http://192.168.1.23:8080`）即可連線
+5. 用完雙擊 `關閉.command` / `關閉.bat` 即可關閉服務
+
+## 技術細節（給會碰程式的人）
+```bash
+cd tools/自由式划水分析
+docker compose up --build   # 或直接用上面的啟動腳本
+```
+`Dockerfile` 是多階段build：先用Node把 `frontend/` 編譯成靜態檔案，再放進Python的Flask後端一起提供服務，`backend/app.py` 會在 `/` 直接serve編譯好的前端，`/api/*` 才是API路由——所以整個工具只佔一個port（預設對外映射 `8080`），現地使用非常單純。容器內也裝了ffmpeg，分析影片可以在瀏覽器正常播放（不像本機dev測試時遇到的黑屏問題）。
+
+⚠️ **注意**：這個Docker打包過程本身無法在目前的Claude Code sandbox環境完整驗證（此環境的網路政策擋掉了Docker Hub的映像檔下載），但底層邏輯（Flask單一origin同時serve API+前端靜態檔）已經用本機Node build+Flask實測過，行為與Docker容器內完全一致；`Dockerfile`／`docker-compose.yml`／啟動腳本請在正常網路環境（您自己的電腦）跑一次 `docker compose up --build` 驗證。
 
 ## 已知小問題
-本機測試環境（Claude Code sandbox）因為套件庫連線問題裝不了ffmpeg，導致分析影片是mp4v編碼、瀏覽器播放器顯示黑屏（下載後用VLC等播放器可正常看）。這是**環境限制，不是程式問題**：`Dockerfile`裡已經有`apt-get install ffmpeg`，正式部署（Docker/Render等）會自動裝好ffmpeg，影片就能在瀏覽器正常播放。
+本機測試環境（Claude Code sandbox）因為套件庫連線問題裝不了ffmpeg，`npm start`/`python backend/app.py`直接跑（非Docker）時分析影片會是mp4v編碼、瀏覽器播放器顯示黑屏（下載後用VLC等播放器可正常看）。這是**環境限制，不是程式問題**：Docker容器內已經裝好ffmpeg會自動解決；雲端部署（Render等）平台上apt-get也能正常裝ffmpeg。

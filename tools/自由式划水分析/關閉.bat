@@ -1,0 +1,6 @@
+@echo off
+REM 自由式划水分析 - 關閉服務（Windows）
+cd /d "%~dp0"
+docker compose down
+echo 已關閉。
+pause

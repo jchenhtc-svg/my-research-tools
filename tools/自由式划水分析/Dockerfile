@@ -1,4 +1,16 @@
-# ── Build stage ────────────────────────────────────────────────────────────
+# ── Frontend build stage ─────────────────────────────────────────────────────
+FROM node:20-slim AS frontend-builder
+
+WORKDIR /frontend
+COPY frontend/package.json ./
+RUN npm install
+COPY frontend/ ./
+# 現地單機使用：API跟前端同一個origin，不用設定REACT_APP_API_URL
+ENV REACT_APP_API_URL=/api
+RUN npm run build
+
+
+# ── Backend build stage ───────────────────────────────────────────────────────
 FROM python:3.10-slim AS builder
 
 WORKDIR /app
@@ -35,6 +47,10 @@ COPY --from=builder /install /usr/local
 
 # Copy application source
 COPY . .
+
+# 拿掉不會用到的前端原始碼，改放編譯好的靜態檔案（單一容器同時提供API+網頁）
+RUN rm -rf frontend
+COPY --from=frontend-builder /frontend/build ./frontend/build
 
 # Create upload/result directories
 RUN mkdir -p backend/uploads backend/results

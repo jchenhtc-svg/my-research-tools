@@ -36,7 +36,15 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 # App & CORS
 # ---------------------------------------------------------------------------
-app = Flask(__name__)
+# 現地單容器模式：前端編譯後的靜態檔案跟這支API一起用同一個Flask服務
+FRONTEND_BUILD_DIR = os.path.join(ROOT, 'frontend', 'build')
+HAS_BUILT_FRONTEND = os.path.isdir(FRONTEND_BUILD_DIR)
+
+app = Flask(
+    __name__,
+    static_folder=FRONTEND_BUILD_DIR if HAS_BUILT_FRONTEND else None,
+    static_url_path='',
+)
 
 IS_PRODUCTION = os.getenv('FLASK_ENV', 'development') == 'production'
 FRONTEND_URL = os.getenv('FRONTEND_URL', '').rstrip('/')
@@ -296,6 +304,19 @@ def get_result_report(video_id):
 @app.route('/api/health', methods=['GET'])
 def health_check():
     return jsonify({'status': 'ok', 'workers': MAX_WORKERS}), 200
+
+
+# ---------------------------------------------------------------------------
+# Serve the built React frontend (single-container local package)
+# ---------------------------------------------------------------------------
+if HAS_BUILT_FRONTEND:
+    @app.route('/', defaults={'path': ''})
+    @app.route('/<path:path>')
+    def serve_frontend(path):
+        full_path = os.path.join(FRONTEND_BUILD_DIR, path)
+        if path and os.path.isfile(full_path):
+            return app.send_static_file(path)
+        return app.send_static_file('index.html')
 
 
 # ---------------------------------------------------------------------------

@@ -1,0 +1,8 @@
+services:
+  swim-analyzer:
+    build: .
+    ports:
+      - "8080:7860"
+    environment:
+      - FLASK_ENV=production
+    restart: unless-stopped
