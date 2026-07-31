@@ -2,7 +2,7 @@
 
 用電腦視覺（MediaPipe姿態估計）分析自由式選手側拍影片，輸出划水角度、划頻等指標，以及教練用的文字回饋報告。
 
-兩種使用方式：CLI（自己分析用）跟網頁版（給選手/助理教練用瀏覽器上傳）。
+四種使用方式：CLI（自己分析用）、網頁版（雲端部署給選手/助理教練用）、現地Docker版（單機起服務，同WiFi多裝置連線）、**現地單機.exe版**（單一電腦用，不需要Docker/Python，雙擊就跑）。
 
 ## 來源
 核心程式碼改編自開源專案 [veluthoor/swim-stroke-analyzer](https://github.com/veluthoor/swim-stroke-analyzer)（MIT License），拿掉了選配的Gemini UI設計助手。
@@ -79,9 +79,9 @@ repo裡已附 `Dockerfile`／`Procfile`／`render.yaml`／`railway.json`／`nixp
 
 ---
 
-# 現地版（單機打包，不經雲端，資料不離開現場）
+# 現地Docker版（單機起服務，同WiFi多裝置連線，資料不上雲）
 
-適合完全不想讓選手影像碰到任何第三方雲端的情境。把 `backend`＋`frontend` 包成**單一Docker容器**（同一個port同時提供API跟網頁），只要在一台電腦上啟動，同一個WiFi下的手機/平板都能連。
+適合**訓練現場有多人要一起連**（教練+助理教練+選手各自手機/平板）的情境。把 `backend`＋`frontend` 包成**單一Docker容器**（同一個port同時提供API跟網頁），只要在一台電腦上啟動，同一個WiFi下的手機/平板都能連。
 
 ## 使用方式（現場教練/助理，不需要懂程式）
 1. 該電腦第一次使用需先安裝 [Docker Desktop](https://www.docker.com/products/docker-desktop/)（一次性，免費）
@@ -101,3 +101,32 @@ docker compose up --build   # 或直接用上面的啟動腳本
 
 ## 已知小問題
 本機測試環境（Claude Code sandbox）因為套件庫連線問題裝不了ffmpeg，`npm start`/`python backend/app.py`直接跑（非Docker）時分析影片會是mp4v編碼、瀏覽器播放器顯示黑屏（下載後用VLC等播放器可正常看）。這是**環境限制，不是程式問題**：Docker容器內已經裝好ffmpeg會自動解決；雲端部署（Render等）平台上apt-get也能正常裝ffmpeg。
+
+---
+
+# 現地單機.exe版（只有一台電腦要用，不需要Docker/Python/Node）
+
+適合**只有一台電腦要看、不用給其他裝置連**的情境。不需要安裝Docker Desktop（省掉500MB下載+重開機），使用者只要拿到一個資料夾，雙擊裡面的`.exe`，背景會自動啟動、自動跳出瀏覽器，關掉視窗就結束。
+
+## 給教練/助理教練（拿到打包好的資料夾之後）
+1. 解壓縮 `SwimStrokeAnalyzer` 資料夾（放桌面或任何位置都可以，**不要把裡面的.exe單獨移出來**，它需要跟旁邊的檔案放在一起）
+2. 雙擊 `SwimStrokeAnalyzer.exe`
+3. 出現黑色視窗印出啟動訊息後，瀏覽器會自動打開 http://127.0.0.1:8080
+4. 用完直接關掉那個黑色視窗即可（等於關閉服務）
+
+## 給會碰程式的人（第一次要自己build出.exe）
+這個.exe必須在**Windows電腦**上build（無法從Mac/Linux或這個開發環境跨平台編譯），只要build這一次，之後產出的資料夾誰都能直接用，不需要再裝任何東西：
+
+1. 該Windows電腦先裝好 [Python 3.10+](https://www.python.org/downloads/) 和 [Node.js](https://nodejs.org/)（只有build這台電腦需要，其他使用者的電腦不用裝）
+2. 雙擊 `build_exe.bat`，或在終端機執行：
+   ```
+   cd tools\自由式划水分析
+   build_exe.bat
+   ```
+3. 跑完後產出 `dist\SwimStrokeAnalyzer\` 資料夾，裡面的 `SwimStrokeAnalyzer.exe` 就是給使用者雙擊的檔案。把整個資料夾壓縮成zip分享出去即可
+
+### 技術細節
+- `desktop_app.py` 是給PyInstaller打包用的進入點：用 [waitress](https://github.com/Pylons/waitress)（純Python、跨平台的WSGI伺服器，Windows不支援gunicorn所以雲端版跟桌面版分開處理）取代gunicorn，並且**用`importlib`直接從硬碟讀取`backend/app.py`**（而不是讓PyInstaller把它編譯進打包檔內部），這樣`backend/app.py`原本用`__file__`算路徑的邏輯（找`frontend/build`、`uploads`/`results`資料夾）在打包後才能繼續正確運作
+- `build_exe.bat`用 `--add-data` 把 `backend`／`src`／`frontend/build` 三個資料夾原封不動塞進輸出資料夾，用 `--collect-data mediapipe` 額外處理mediapipe自己內建的模型檔案（這是PyInstaller打包mediapipe時常見的雷，模型檔案不會被自動偵測到）
+- 已在本機（Linux，非frozen狀態）用實際跑`desktop_app.py`＋Playwright驗證整條「啟動→上傳→分析→出報告」流程正確、跟原本的Docker版/dev版結果一致（4/10分、無console錯誤）
+- ⚠️ **PyInstaller打包出真正的.exe這一步本身還沒驗證過**（此開發環境是Linux，無法跨平台編譯Windows執行檔）。第一次在Windows上跑`build_exe.bat`如果PyInstaller報錯找不到某個模組，通常是加一個 `--hidden-import <模組名>` 就能解決，`build_exe.bat`裡也有留這個提示

@@ -15,7 +15,7 @@
 
 ## 工具清單
 （之後加新工具時會自動更新）
-- `tools/自由式划水分析/`：用MediaPipe姿態估計分析自由式選手側拍影片，輸出划水角度/划頻等指標與教練回饋報告（改編自開源專案 veluthoor/swim-stroke-analyzer, MIT License）。有三種使用型態：CLI（本機分析）、網頁版（Flask+React，可部署雲端）、現地Docker單機版（雙擊`啟動.command`/`啟動.bat`，資料不上雲）
+- `tools/自由式划水分析/`：用MediaPipe姿態估計分析自由式選手側拍影片，輸出划水角度/划頻等指標與教練回饋報告（改編自開源專案 veluthoor/swim-stroke-analyzer, MIT License）。有四種使用型態：CLI（本機分析）、網頁版（Flask+React，可部署雲端）、現地Docker版（雙擊`啟動.command`/`啟動.bat`，多裝置同WiFi連線）、現地單機.exe版（`build_exe.bat`打包，單一電腦用、不需Docker/Python）
 
 ## 工作注意事項
 - 學生資料一律去識別化（只用座號 + 班級代號）

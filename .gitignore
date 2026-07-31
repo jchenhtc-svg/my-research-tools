@@ -29,3 +29,9 @@ tools/*/測試輸出/
 tools/*/backend/uploads/
 tools/*/backend/results/
 tools/*/frontend/build/
+
+# PyInstaller build產物（自己build，不上雲）
+tools/*/.build-venv/
+tools/*/build/
+tools/*/dist/
+tools/*/*.spec
