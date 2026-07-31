@@ -26,7 +26,7 @@ def _issue_card_html(issue: FreestyleIssue, tone: str) -> str:
     return f"""
     <div class="issue-card {tone}">
       <div class="issue-desc">{_esc(issue.description)}</div>
-      <div class="issue-tip"><strong>How to fix:</strong> {_esc(issue.tip)}</div>
+      <div class="issue-tip"><strong>如何改善：</strong> {_esc(issue.tip)}</div>
     </div>"""
 
 
@@ -37,12 +37,12 @@ def _metric_cards_html(metrics: Dict) -> str:
     if elbow.get('avg_angle') is not None:
         extra = ""
         if elbow.get('left_avg') is not None and elbow.get('right_avg') is not None:
-            extra = f"<div class='metric-sub'>Left: {elbow['left_avg']:.1f}&deg; | Right: {elbow['right_avg']:.1f}&deg;</div>"
+            extra = f"<div class='metric-sub'>左手：{elbow['left_avg']:.1f}&deg; | 右手：{elbow['right_avg']:.1f}&deg;</div>"
         cards.append(f"""
         <div class="metric-card">
-          <div class="metric-label">Elbow Catch Angle</div>
+          <div class="metric-label">抓水肘角</div>
           <div class="metric-value">{elbow['avg_angle']:.1f}&deg;</div>
-          <div class="metric-optimal">optimal: 80&ndash;100&deg;</div>
+          <div class="metric-optimal">理想範圍：80&ndash;100&deg;</div>
           {extra}
         </div>""")
 
@@ -50,47 +50,47 @@ def _metric_cards_html(metrics: Dict) -> str:
     if rotation.get('avg_rotation') is not None:
         cards.append(f"""
         <div class="metric-card">
-          <div class="metric-label">Body Rotation</div>
+          <div class="metric-label">身體轉肩角度</div>
           <div class="metric-value">{rotation['avg_rotation']:.1f}&deg;</div>
-          <div class="metric-optimal">optimal: 45&ndash;60&deg;</div>
-          <div class="metric-sub">Range: {rotation['min_rotation']:.1f}&deg; &ndash; {rotation['max_rotation']:.1f}&deg;</div>
+          <div class="metric-optimal">理想範圍：45&ndash;60&deg;</div>
+          <div class="metric-sub">範圍：{rotation['min_rotation']:.1f}&deg; &ndash; {rotation['max_rotation']:.1f}&deg;</div>
         </div>""")
 
     stroke_rate = metrics.get('stroke_rate', {})
     if stroke_rate.get('spm') is not None:
         cards.append(f"""
         <div class="metric-card">
-          <div class="metric-label">Stroke Rate</div>
+          <div class="metric-label">划頻</div>
           <div class="metric-value">{stroke_rate['spm']:.1f} SPM</div>
-          <div class="metric-optimal">optimal: 50&ndash;60 SPM</div>
-          <div class="metric-sub">Duration: {stroke_rate['duration']:.1f}s | Strokes: {stroke_rate['total_strokes']}</div>
+          <div class="metric-optimal">理想範圍：50&ndash;60 SPM</div>
+          <div class="metric-sub">時長：{stroke_rate['duration']:.1f}秒 | 划水次數：{stroke_rate['total_strokes']}</div>
         </div>""")
 
     head = metrics.get('head', {})
     if head.get('stability') is not None:
         cards.append(f"""
         <div class="metric-card">
-          <div class="metric-label">Head Stability</div>
+          <div class="metric-label">頭部穩定度</div>
           <div class="metric-value">{head['stability'] * 100:.1f}%</div>
-          <div class="metric-optimal">higher is better</div>
+          <div class="metric-optimal">越高越好</div>
         </div>""")
 
     kick = metrics.get('kick', {})
     if kick.get('avg_knee_angle') is not None:
         cards.append(f"""
         <div class="metric-card">
-          <div class="metric-label">Kick Mechanics (knee angle)</div>
+          <div class="metric-label">踢腿動作（膝關節角度）</div>
           <div class="metric-value">{kick['avg_knee_angle']:.1f}&deg;</div>
-          <div class="metric-optimal">should be near 170&deg;</div>
+          <div class="metric-optimal">應接近170&deg;</div>
         </div>""")
 
     if metrics.get('valid_frame_ratio') is not None:
         pct = metrics['valid_frame_ratio'] * 100
         cards.append(f"""
         <div class="metric-card">
-          <div class="metric-label">Detection Quality</div>
+          <div class="metric-label">偵測品質</div>
           <div class="metric-value">{pct:.1f}%</div>
-          <div class="metric-optimal">of frames analyzed</div>
+          <div class="metric-optimal">的影格成功分析</div>
         </div>""")
 
     return "".join(cards)
@@ -126,21 +126,20 @@ def generate_html_report(analysis_results: Dict, video_name: str = "") -> str:
         pct = valid_ratio * 100
         warning_html = f"""
         <div class="low-confidence-banner">
-          &#9888;&#65039; <strong>Low detection quality ({pct:.1f}%)</strong> &mdash;
-          this video had too few valid pose-detection frames for the angle/rate
-          numbers below to be fully trustworthy. Usually caused by a short clip,
-          the swimmer leaving frame, or poor visibility. Treat this score with
-          caution and consider re-filming a longer, clearer clip (5&ndash;6+ full
-          stroke cycles, swimmer fully in frame throughout).
+          &#9888;&#65039; <strong>偵測品質偏低（{pct:.1f}%）</strong>&mdash;
+          這支影片成功偵測到姿勢的影格太少，下方的角度/划頻數字可信度不足。
+          通常是因為影片太短、選手中途游出鏡頭、或水面反光/能見度不佳。
+          請斟酌採信這次的評分，建議重新拍攝一支更長、更清楚的影片
+          （涵蓋5&ndash;6次以上完整划水週期，選手全程都在鏡頭內）。
         </div>"""
 
     action_items = []
     n = 1
     for issue in critical_issues:
-        action_items.append((n, "FIX THIS FIRST", "critical", issue))
+        action_items.append((n, "優先修正", "critical", issue))
         n += 1
     for issue in moderate_issues[:2]:
-        action_items.append((n, "IMPORTANT", "moderate", issue))
+        action_items.append((n, "待加強", "moderate", issue))
         n += 1
 
     action_html = ""
@@ -153,18 +152,18 @@ def generate_html_report(analysis_results: Dict, video_name: str = "") -> str:
         </div>""" for num, label, tone, issue in action_items)
         action_html = f"""
         <div class="card">
-          <h2>Your Action Plan</h2>
-          <p class="muted">Focus on these in order:</p>
+          <h2>您的行動計畫</h2>
+          <p class="muted">依序專注在這些項目：</p>
           {rows}
         </div>"""
 
     red_flag_html = ""
     if critical_issues:
         top = critical_issues[0]
-        more = f"<p class='muted'>(+ {len(critical_issues) - 1} more critical issue{'s' if len(critical_issues) > 2 else ''} detected)</p>" if len(critical_issues) > 1 else ""
+        more = f"<p class='muted'>（還有{len(critical_issues) - 1}項其他關鍵問題）</p>" if len(critical_issues) > 1 else ""
         red_flag_html = f"""
         <div class="card red-flag-card">
-          <h2>&#128680; Biggest Red Flag</h2>
+          <h2>&#128680; 最大警訊</h2>
           {_issue_card_html(top, 'critical')}
           {more}
         </div>"""
@@ -174,17 +173,17 @@ def generate_html_report(analysis_results: Dict, video_name: str = "") -> str:
         items = "".join(f"<li>{_esc(s)}</li>" for s in strengths)
         strengths_html = f"""
         <div class="card">
-          <h2>&#9989; What's Working</h2>
+          <h2>&#9989; 做得好的地方</h2>
           <ul class="strengths-list">{items}</ul>
         </div>"""
 
     breakdown_sections = []
     if critical_issues:
-        breakdown_sections.append(("Critical Issues", 'critical', critical_issues))
+        breakdown_sections.append(("關鍵問題", 'critical', critical_issues))
     if moderate_issues:
-        breakdown_sections.append(("Areas for Improvement", 'moderate', moderate_issues))
+        breakdown_sections.append(("待加強項目", 'moderate', moderate_issues))
     if minor_issues:
-        breakdown_sections.append(("Minor Suggestions", 'minor', minor_issues))
+        breakdown_sections.append(("次要建議", 'minor', minor_issues))
 
     breakdown_html = ""
     if breakdown_sections:
@@ -194,7 +193,7 @@ def generate_html_report(analysis_results: Dict, video_name: str = "") -> str:
             blocks += f"<h3 class='breakdown-heading {tone}'>{_esc(label)}</h3>{cards}"
         breakdown_html = f"""
         <details class="card">
-          <summary><h2 style="display:inline">Full Technical Report</h2></summary>
+          <summary><h2 style="display:inline">完整技術報告</h2></summary>
           {blocks}
         </details>"""
 
@@ -202,19 +201,19 @@ def generate_html_report(analysis_results: Dict, video_name: str = "") -> str:
     if not issues:
         no_issues_html = """
         <div class="card celebration-card">
-          <h2>&#127942; Excellent Technique!</h2>
-          <p>No major technique issues detected. Your freestyle form is solid &mdash; keep it up!</p>
+          <h2>&#127942; 技術優秀！</h2>
+          <p>沒有偵測到重大技術問題，您的自由式姿勢很扎實，繼續保持！</p>
         </div>"""
 
     generated_at = datetime.now().strftime("%Y-%m-%d %H:%M")
-    subtitle = f"Source: {_esc(video_name)} &middot; Generated {generated_at}" if video_name else f"Generated {generated_at}"
+    subtitle = f"來源：{_esc(video_name)} &middot; 產生時間 {generated_at}" if video_name else f"產生時間 {generated_at}"
 
     return f"""<!doctype html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Swim Stroke Analysis Report</title>
+<title>自由式划水分析報告</title>
 <style>
   :root {{
     --primary: #667eea;
@@ -331,7 +330,7 @@ def generate_html_report(analysis_results: Dict, video_name: str = "") -> str:
 <body>
 <div class="container">
   <div class="header">
-    <h1>&#127939; Swim Stroke Analysis Report</h1>
+    <h1>&#127939; 自由式划水分析報告</h1>
     <p>{subtitle}</p>
   </div>
 
@@ -341,11 +340,11 @@ def generate_html_report(analysis_results: Dict, video_name: str = "") -> str:
     <div class="score-circle">
       <div class="num">{rating}/10</div>
     </div>
-    <div>Overall Technique Score</div>
+    <div>技術總評分</div>
   </div>
 
   <div class="card insight-card">
-    <h2>Quick Insight</h2>
+    <h2>快速洞察</h2>
     <p style="margin:0">{_esc(insight)}</p>
   </div>
 
@@ -355,7 +354,7 @@ def generate_html_report(analysis_results: Dict, video_name: str = "") -> str:
   {no_issues_html}
 
   <div class="card">
-    <h2>Your Numbers</h2>
+    <h2>您的數據</h2>
     <div class="metrics-grid">
       {_metric_cards_html(metrics)}
     </div>
@@ -364,7 +363,7 @@ def generate_html_report(analysis_results: Dict, video_name: str = "") -> str:
   {breakdown_html}
 
   <div class="footer-tip">
-    &#128161; Focus on fixing one issue at a time &mdash; trying to change everything at once slows progress down.
+    &#128161; 一次專注改善一個問題——同時改太多項目反而會拖慢進步速度。
   </div>
 </div>
 </body>

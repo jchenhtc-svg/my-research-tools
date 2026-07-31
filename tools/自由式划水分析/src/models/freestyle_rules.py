@@ -51,43 +51,43 @@ class FreestyleIssue:
 # Issue definitions with coaching tips
 ISSUE_TYPES = {
     'dropped_elbow': {
-        'name': 'Dropped Elbow',
-        'tip': 'Focus on high elbow catch. Imagine reaching over a barrel. Keep your elbow higher than your wrist during the catch phase.',
+        'name': '手肘下垂',
+        'tip': '專注於高肘抓水，想像手臂越過一個桶子。抓水階段手肘要比手腕高。',
         'severity': SEVERITY_CRITICAL,
     },
     'flat_body': {
-        'name': 'Flat Body Position',
-        'tip': 'Increase body rotation (45-60°). Initiate rotation from your hips, not shoulders. Roll your body like a log.',
+        'name': '身體轉肩不足',
+        'tip': '增加身體轉肩幅度（45-60°）。轉肩要從髖部發動，不是肩膀。讓身體像滾木頭一樣轉動。',
         'severity': SEVERITY_CRITICAL,
     },
     'over_rotation': {
-        'name': 'Over-rotation',
-        'tip': 'Reduce body rotation. Focus on controlled roll. Your shoulders should rotate more than your hips.',
+        'name': '轉肩過度',
+        'tip': '減少身體轉肩幅度，專注於有控制的轉動。肩膀轉動幅度應該大於髖部。',
         'severity': SEVERITY_MODERATE,
     },
     'crossing_centerline': {
-        'name': 'Arm Crossing Centerline',
-        'tip': 'Enter your hand in line with your shoulder. Avoid crossing past the centerline of your body. Track straight back.',
+        'name': '入水過中線',
+        'tip': '入水點要對齊肩膀，避免超過身體中線。手臂要沿直線划回。',
         'severity': SEVERITY_CRITICAL,
     },
     'head_lifting': {
-        'name': 'Head Lifting During Breathing',
-        'tip': 'Rotate your head to breathe, don\'t lift it. Keep one goggle in the water. Look to the side, not forward.',
+        'name': '換氣時抬頭',
+        'tip': '換氣時轉頭而不是抬頭，一邊泳鏡留在水中，眼睛看側邊而不是前方。',
         'severity': SEVERITY_MODERATE,
     },
     'excessive_knee_bend': {
-        'name': 'Excessive Knee Bend',
-        'tip': 'Keep your legs straighter. Kick from your hips, not your knees. Small, quick kicks with minimal knee bend.',
+        'name': '踢腿膝蓋彎曲過度',
+        'tip': '雙腿保持較直，從髖部發力打水，小幅度快速踢腿、盡量減少膝蓋彎曲。',
         'severity': SEVERITY_MODERATE,
     },
     'slow_stroke_rate': {
-        'name': 'Slow Stroke Rate',
-        'tip': 'Increase your tempo slightly (aim for 50-60 SPM for distance swimming). Focus on quicker hand turnover.',
+        'name': '划頻過慢',
+        'tip': '稍微加快節奏（長距離游泳建議抓50-60 SPM），專注於加快手部轉換速度。',
         'severity': SEVERITY_MINOR,
     },
     'fast_stroke_rate': {
-        'name': 'Fast Stroke Rate',
-        'tip': 'Slow down and focus on longer strokes. Glide more after each stroke. Distance per stroke is more efficient.',
+        'name': '划頻過快',
+        'tip': '放慢速度、拉長划距，每次划水後多一點滑行。划距效率比划頻更重要。',
         'severity': SEVERITY_MINOR,
     },
 }
@@ -106,8 +106,8 @@ def get_severity_emoji(severity: str) -> str:
 def get_severity_label(severity: str) -> str:
     """Get text label for severity level."""
     if severity == SEVERITY_CRITICAL:
-        return "Critical Issues"
+        return "關鍵問題"
     elif severity == SEVERITY_MODERATE:
-        return "Areas for Improvement"
+        return "待加強項目"
     else:
-        return "Minor Suggestions"
+        return "次要建議"

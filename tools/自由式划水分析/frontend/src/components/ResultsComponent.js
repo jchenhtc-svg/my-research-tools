@@ -22,10 +22,10 @@ function ResultsComponent({ videoId, onReset }) {
         setReport(data.report);
         parseReport(data.report);
       } else {
-        setError('Failed to load report');
+        setError('報告載入失敗');
       }
     } catch (err) {
-      setError('Network error loading report');
+      setError('連線錯誤，無法載入報告');
     } finally {
       setLoading(false);
     }
@@ -37,19 +37,19 @@ function ResultsComponent({ videoId, onReset }) {
 
   const parseReport = (reportText) => {
     // Extract score
-    const scoreMatch = reportText.match(/Overall Technique Score: (\d+)\/10/);
+    const scoreMatch = reportText.match(/技術總評分：(\d+)\/10/);
     if (scoreMatch) {
       setScore(parseInt(scoreMatch[1]));
     }
 
     // Extract Quick Insight
-    const insightMatch = reportText.match(/📊 QUICK INSIGHT\n━+\n(.+?)(?:\n\n|$)/s);
+    const insightMatch = reportText.match(/📊 快速洞察\n━+\n(.+?)(?:\n\n|$)/s);
     if (insightMatch) {
       setQuickInsight(insightMatch[1].trim());
     }
 
     // Extract Biggest Red Flag
-    const redFlagMatch = reportText.match(/🚨 BIGGEST RED FLAG\n━+\n⚠️ {2}(.+?)\n\n💡 HOW TO FIX IT:\n {3}(.+?)(?:\n\n|$)/s);
+    const redFlagMatch = reportText.match(/🚨 最大警訊\n━+\n⚠️ {2}(.+?)\n\n💡 如何改善：\n {3}(.+?)(?:\n\n|$)/s);
     if (redFlagMatch) {
       setBiggestRedFlag({
         issue: redFlagMatch[1].trim(),
@@ -58,7 +58,7 @@ function ResultsComponent({ videoId, onReset }) {
     }
 
     // Extract Strengths
-    const strengthsMatch = reportText.match(/✅ WHAT'S WORKING\n━+\n((?:• .+\n?)+)/);
+    const strengthsMatch = reportText.match(/✅ 做得好的地方\n━+\n((?:• .+\n?)+)/);
     if (strengthsMatch) {
       const strengthsList = strengthsMatch[1]
         .split('\n')
@@ -68,14 +68,14 @@ function ResultsComponent({ videoId, onReset }) {
     }
 
     // Extract issues from ACTION PLAN section
-    const actionPlanMatch = reportText.match(/🎯 YOUR ACTION PLAN\n━+\nFocus on these in order:\n\n((?:.|\n)+?)(?:\n\n━|$)/);
+    const actionPlanMatch = reportText.match(/🎯 您的行動計畫\n━+\n依序專注在這些項目：\n\n((?:.|\n)+?)(?:\n\n━|$)/);
     const parsedIssues = [];
 
     if (actionPlanMatch) {
       const actionItems = actionPlanMatch[1];
 
       // Extract critical issues
-      const criticalMatches = actionItems.matchAll(/\d+\. 🚨 FIX THIS FIRST: (.+?)\n {3}→ (.+?)(?:\n\n|\n\d|$)/gs);
+      const criticalMatches = actionItems.matchAll(/\d+\. 🚨 優先修正：(.+?)\n {3}→ (.+?)(?:\n\n|\n\d|$)/gs);
       for (const match of criticalMatches) {
         parsedIssues.push({
           severity: 'critical',
@@ -85,7 +85,7 @@ function ResultsComponent({ videoId, onReset }) {
       }
 
       // Extract moderate issues
-      const moderateMatches = actionItems.matchAll(/\d+\. ⚠️ IMPORTANT: (.+?)\n {3}→ (.+?)(?:\n\n|\n\d|$)/gs);
+      const moderateMatches = actionItems.matchAll(/\d+\. ⚠️ 待加強：(.+?)\n {3}→ (.+?)(?:\n\n|\n\d|$)/gs);
       for (const match of moderateMatches) {
         parsedIssues.push({
           severity: 'moderate',
@@ -108,10 +108,10 @@ function ResultsComponent({ videoId, onReset }) {
   };
 
   const getScoreFeedback = (score) => {
-    if (score >= 9) return 'Olympic-level form!';
-    if (score >= 7) return 'Solid technique!';
-    if (score >= 5) return 'Getting there!';
-    return 'Room to improve!';
+    if (score >= 9) return '奧運等級的動作！';
+    if (score >= 7) return '技術很扎實！';
+    if (score >= 5) return '持續進步中！';
+    return '還有進步空間！';
   };
 
   return (
@@ -119,7 +119,7 @@ function ResultsComponent({ videoId, onReset }) {
       {/* Hero Section with Score */}
       <div className="card" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', textAlign: 'center' }}>
         <h2 style={{ fontSize: '2rem', marginBottom: '20px', color: 'white' }}>
-          🏊‍♂️ Your Stroke Analysis
+          🏊‍♂️ 您的划水分析
         </h2>
 
         {!loading && score !== null && (
@@ -152,7 +152,7 @@ function ResultsComponent({ videoId, onReset }) {
           border: '2px solid #667eea'
         }}>
           <h3 style={{ fontSize: '1.5rem', marginBottom: '15px', color: '#333' }}>
-            📊 Quick Insight
+            📊 快速洞察
           </h3>
           <p style={{
             fontSize: '1.2rem',
@@ -172,7 +172,7 @@ function ResultsComponent({ videoId, onReset }) {
           border: '3px solid #D32F2F'
         }}>
           <h3 style={{ fontSize: '1.6rem', marginBottom: '15px', color: '#D32F2F' }}>
-            🚨 Biggest Red Flag
+            🚨 最大警訊
           </h3>
           <div style={{
             background: 'white',
@@ -195,7 +195,7 @@ function ResultsComponent({ videoId, onReset }) {
             padding: '20px'
           }}>
             <h4 style={{ fontSize: '1.1rem', marginBottom: '10px', color: '#36B37E' }}>
-              💡 How to Fix It:
+              💡 如何改善：
             </h4>
             <p style={{
               fontSize: '1.05rem',
@@ -216,7 +216,7 @@ function ResultsComponent({ videoId, onReset }) {
           border: '2px solid #36B37E'
         }}>
           <h3 style={{ fontSize: '1.5rem', marginBottom: '20px', color: '#36B37E' }}>
-            ✅ What's Working
+            ✅ 做得好的地方
           </h3>
           <div style={{ maxWidth: '700px', margin: '0 auto' }}>
             {strengths.map((strength, idx) => (
@@ -244,7 +244,7 @@ function ResultsComponent({ videoId, onReset }) {
       {/* Video Section with Auto-Play */}
       <div className="card">
         <h3 style={{ textAlign: 'center', marginBottom: '20px', fontSize: '1.5rem' }}>
-          📹 Your Analyzed Swim
+          📹 標註分析影片
         </h3>
 
         <div style={{
@@ -263,7 +263,7 @@ function ResultsComponent({ videoId, onReset }) {
             style={{ width: '100%', display: 'block' }}
           >
             <source src={videoUrl} type="video/mp4" />
-            Your browser does not support video playback.
+            您的瀏覽器不支援影片播放。
           </video>
         </div>
 
@@ -278,7 +278,7 @@ function ResultsComponent({ videoId, onReset }) {
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
             }}
           >
-            📥 Download Video
+            📥 下載影片
           </a>
         </div>
       </div>
@@ -287,7 +287,7 @@ function ResultsComponent({ videoId, onReset }) {
       {!loading && issues.length > 0 && (
         <div className="card">
           <h3 style={{ fontSize: '1.8rem', marginBottom: '25px', textAlign: 'center' }}>
-            🎯 Your Action Plan
+            🎯 您的行動計畫
           </h3>
 
           <div style={{ maxWidth: '700px', margin: '0 auto' }}>
@@ -314,7 +314,7 @@ function ResultsComponent({ videoId, onReset }) {
                   fontSize: '0.85rem',
                   fontWeight: 'bold'
                 }}>
-                  {idx + 1}. {issue.severity === 'critical' ? '🚨 FIX THIS FIRST' : '⚠️  IMPORTANT'}
+                  {idx + 1}. {issue.severity === 'critical' ? '🚨 優先修正' : '⚠️  待加強'}
                 </div>
 
                 <div style={{ marginTop: '5px', fontSize: '1.1rem', lineHeight: '1.6', marginBottom: '15px' }}>
@@ -329,7 +329,7 @@ function ResultsComponent({ videoId, onReset }) {
                     borderLeft: '3px solid #36B37E'
                   }}>
                     <div style={{ fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '5px', color: '#36B37E' }}>
-                      💡 How to fix:
+                      💡 如何改善：
                     </div>
                     <div style={{ fontSize: '1rem', color: '#555', lineHeight: '1.6' }}>
                       {issue.fix}
@@ -347,11 +347,11 @@ function ResultsComponent({ videoId, onReset }) {
               textAlign: 'center'
             }}>
               <div style={{ fontSize: '1.2rem', marginBottom: '10px' }}>
-                💡 <strong>Pro Tip:</strong>
+                💡 <strong>小提醒：</strong>
               </div>
               <div style={{ fontSize: '1rem', color: '#555', lineHeight: '1.6' }}>
-                Focus on <strong>one issue at a time</strong>. Film yourself fixing it, then analyze again.
-                Small improvements add up fast! 🚀
+一次專注改善<strong>一個問題</strong>，改善後再重新拍攝分析一次，
+                小幅進步會快速累積！ 🚀
               </div>
             </div>
           </div>
@@ -363,10 +363,10 @@ function ResultsComponent({ videoId, onReset }) {
         <div className="card" style={{ textAlign: 'center', background: '#F1F8F4' }}>
           <div style={{ fontSize: '4rem', marginBottom: '20px' }}>🎉</div>
           <h3 style={{ fontSize: '2rem', color: '#36B37E', marginBottom: '15px' }}>
-            Amazing Technique!
+            技術非常好！
           </h3>
           <p style={{ fontSize: '1.2rem', color: '#666' }}>
-            Your freestyle form is looking solid. Keep up the excellent work!
+            您的自由式動作很扎實，繼續保持！
           </p>
         </div>
       )}
@@ -382,14 +382,14 @@ function ResultsComponent({ videoId, onReset }) {
             background: '#F4F6FF',
             borderRadius: '8px'
           }}>
-            📊 Full Technical Report
+            📊 完整技術報告
           </summary>
 
           <div style={{ marginTop: '20px' }}>
             {loading && (
               <div style={{ textAlign: 'center' }}>
                 <div className="loading-spinner"></div>
-                <p>Loading detailed analysis...</p>
+                <p>載入詳細分析中...</p>
               </div>
             )}
             {error && (
@@ -422,7 +422,7 @@ function ResultsComponent({ videoId, onReset }) {
             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
           }}
         >
-          🔄 Analyze Another Video
+          🔄 分析另一支影片
         </button>
       </div>
     </div>

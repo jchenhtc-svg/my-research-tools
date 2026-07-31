@@ -35,9 +35,9 @@ function App() {
           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           color: 'white'
         }}>
-          <h1 style={{ color: 'white' }}>🏊‍♂️ Swim Stroke Analyzer</h1>
+          <h1 style={{ color: 'white' }}>🏊‍♂️ 自由式划水分析</h1>
           <p style={{ color: 'rgba(255,255,255,0.95)', fontSize: '1.15rem' }}>
-            AI-powered freestyle coach in your pocket. Upload, analyze, improve! 🚀
+            上傳選手側拍影片，自動分析划水技術並產生教練回饋報告 🚀
           </p>
         </header>
 
