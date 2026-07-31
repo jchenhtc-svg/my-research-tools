@@ -7,4 +7,7 @@ protobuf<4,>=3.11
 flask==3.0.0
 flask-cors==4.0.0
 Werkzeug==3.0.1
-gunicorn>=21.2.0
+gunicorn>=21.2.0   # Docker/雲端部署用；Windows不支援gunicorn，桌面版改用waitress
+
+# 現地Windows桌面版（desktop_app.py / build_exe.bat）需要
+waitress>=2.1.0
