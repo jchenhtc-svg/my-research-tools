@@ -16,7 +16,27 @@ if ! command -v docker &> /dev/null; then
     exit 1
 fi
 
-docker compose up --build -d
+echo "檢查 Docker Desktop 是否已啟動..."
+if ! docker info &> /dev/null; then
+    echo ""
+    echo "❌ Docker 指令找得到，但 Docker Desktop 應用程式還沒開啟或還在初始化。"
+    echo "   請先手動打開 Docker Desktop，等到選單列的鯨魚圖示不再跳動（通常要等10-30秒），"
+    echo "   再重新雙擊這個檔案一次。"
+    echo ""
+    read -p "按 Enter 鍵結束..."
+    exit 1
+fi
+
+echo "Docker 已就緒，開始建置（第一次會花幾分鐘，請耐心等待）..."
+echo ""
+
+if ! docker compose up --build -d; then
+    echo ""
+    echo "❌ 啟動失敗，請把上面的錯誤訊息截圖回報。"
+    echo ""
+    read -p "按 Enter 鍵結束..."
+    exit 1
+fi
 
 echo ""
 echo "✅ 啟動完成！"
