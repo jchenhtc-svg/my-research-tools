@@ -52,12 +52,25 @@ git branch -r --contains HEAD
 ### Step 2：判斷你在哪種環境——這決定後面全部的做法
 
 ```bash
-ls -d ~/secondbrain 2>/dev/null || find / -maxdepth 4 -name "工作筆記.md" 2>/dev/null | head
+ls -d ~/secondbrain 2>/dev/null || find / -xdev -maxdepth 4 -name "工作筆記.md" 2>/dev/null | head
 ```
 
-**找得到 vault** → 你在使用者本機，可以直接讀寫 `工作筆記.md`，收工可以全自動完成。
+**找得到 vault** → 你在使用者本機，直接用 Edit/Write 改 `工作筆記.md` 就好，收工可以全自動完成。
 
-**找不到** → 你在遠端容器（Claude Code on the web / GitHub Action）。容器裡只有 clone 出來的 repo，**Obsidian vault 和 H: 磁碟都不存在**。這時候不要硬掰，走 Step 4 的交付路線。
+**找不到** → 你在遠端容器（Claude Code on the web / GitHub Action）。容器裡只有 clone 出來的 repo，本機檔案系統上沒有 vault 也沒有 H: 磁碟。
+
+**但檔案系統找不到 ≠ 碰不到 vault。** 這位使用者的 Obsidian vault 本身就放在 Google Drive 上：
+
+```
+我的雲端硬碟/secondbrain/<repo>/工作筆記.md
+```
+
+所以就算在遠端容器，也能透過 Google Drive 連接器讀寫 vault。**先查過 Drive 再說「做不到」**——直接宣告失敗會讓使用者白白多做一次手動搬運。查法：
+
+```
+search_files: title contains '工作筆記'
+→ 拿到 parentId，再 get_file_metadata 往上查，確認是不是 secondbrain/<repo>/
+```
 
 ### Step 3：取得並更新工作筆記
 
@@ -96,9 +109,15 @@ base64 -d b64.txt > 工作筆記_原始.md
 
 依環境選路線：
 
-**本機環境**：直接用 Edit/Write 改 vault 裡的 `工作筆記.md`。GDrive 那份如果是同一個資料夾的鏡像，改完就自動同步了。這條路最乾淨。
+**本機環境**：直接用 Edit/Write 改 vault 裡的 `工作筆記.md`。這條最乾淨，改完 Drive 自動同步，什麼都不用手動做。
 
-**遠端容器**：把更新後的檔案交給使用者（`SendUserFile`），說明清楚要覆蓋到哪。想額外備份到 Drive 的話，**用不撞名的檔名**（`工作筆記_20260806.md`）並且**先問過使用者**，不要自作主張製造重複檔。
+**遠端容器**：用 `create_file` 上傳到 vault 資料夾（`secondbrain/<repo>/`）。因為不能覆蓋，**用加日期的檔名**（`工作筆記_20260806.md`），別用原檔名去撞——Drive 允許同名檔案並存，但同步下來之後 Obsidian 會出現兩則同名筆記，桌面版客戶端還可能自己把其中一個改名成 `工作筆記 (1).md`，反而更難收拾。
+
+上傳時**一定要設 `disableConversionToGoogleType: true`**。Drive 預設會把上傳的 markdown 轉成 Google Docs 格式，一轉 Obsidian 就讀不到了——這個錯很安靜，檔案看起來有上去，但 vault 裡就是不出現。
+
+上傳完告訴使用者剩下的手動步驟（在 Obsidian 或 Drive 裡把舊的 `工作筆記.md` 刪掉、新的改回原名），並附上 `viewUrl` 方便他直接點開確認。
+
+也可以同時用 `SendUserFile` 給一份，讓他有離線備份。
 
 ### Step 5：誠實結算
 
