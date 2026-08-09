@@ -18,6 +18,9 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(ROOT)
 
 from src.feedback_generator import FeedbackGenerator
+from src.models.freestyle_rules import (
+    VIEW_SIDE, VIEW_OVERHEAD, PROFILE_STUDENT, PROFILE_COMPETITIVE, DEFAULT_PROFILE,
+)
 from src.pose_detector import PoseDetector
 from src.stroke_analyzer import StrokeAnalyzer
 from src.video_processor import VideoProcessor
@@ -169,14 +172,15 @@ _cleanup_old_files()
 # ---------------------------------------------------------------------------
 # Video processing (runs in thread pool worker)
 # ---------------------------------------------------------------------------
-def _process_video(video_id: str, input_path: str, output_path: str, report_path: str):
+def _process_video(video_id: str, input_path: str, output_path: str, report_path: str,
+                   view: str = VIEW_SIDE, profile: str = DEFAULT_PROFILE):
     """Full analysis pipeline executed in a pool worker thread."""
     try:
         _set_status(video_id, status='processing', progress=10,
                     message='Detecting poses...')
 
         pose_detector = PoseDetector()
-        stroke_analyzer = StrokeAnalyzer()
+        stroke_analyzer = StrokeAnalyzer(view=view, profile=profile)
         visualizer = Visualizer()
         feedback_generator = FeedbackGenerator()
 
@@ -261,7 +265,16 @@ def upload_video():
             'message': 'Upload complete, queued for analysis...',
         }
 
-    executor.submit(_process_video, video_id, input_path, output_path, report_path)
+    # 視角與族群由前端傳入；沒帶就用預設（側拍 / 高中一般生）
+    view = request.form.get('view', VIEW_SIDE)
+    if view not in (VIEW_SIDE, VIEW_OVERHEAD):
+        view = VIEW_SIDE
+    profile = request.form.get('profile', DEFAULT_PROFILE)
+    if profile not in (PROFILE_STUDENT, PROFILE_COMPETITIVE):
+        profile = DEFAULT_PROFILE
+
+    executor.submit(_process_video, video_id, input_path, output_path, report_path,
+                    view, profile)
     logger.info(f"[{video_id}] Queued for analysis (from {client_ip})")
 
     return jsonify({'video_id': video_id, 'message': 'Upload successful, analysis queued'}), 200

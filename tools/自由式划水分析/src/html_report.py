@@ -31,57 +31,85 @@ def _issue_card_html(issue: FreestyleIssue, tone: str) -> str:
 
 
 def _metric_cards_html(metrics: Dict) -> str:
+    from src.models.freestyle_rules import (
+        get_thresholds, DEFAULT_PROFILE, METRIC_LABELS)
+
     cards = []
+    th = get_thresholds(metrics.get('profile', DEFAULT_PROFILE))
+    unavailable = []
+
+    def note_unavailable(name):
+        d = metrics.get(name, {})
+        if d and not d.get('available') and d.get('reason'):
+            unavailable.append((METRIC_LABELS.get(name, name), d['reason']))
+            return True
+        return False
 
     elbow = metrics.get('elbow', {})
-    if elbow.get('avg_angle') is not None:
+    if not note_unavailable('elbow') and elbow.get('catch_angle') is not None:
         extra = ""
         if elbow.get('left_avg') is not None and elbow.get('right_avg') is not None:
-            extra = f"<div class='metric-sub'>左手：{elbow['left_avg']:.1f}&deg; | 右手：{elbow['right_avg']:.1f}&deg;</div>"
+            extra = (f"<div class='metric-sub'>左手：{elbow['left_avg']:.1f}&deg; | "
+                     f"右手：{elbow['right_avg']:.1f}&deg;</div>")
         cards.append(f"""
         <div class="metric-card">
-          <div class="metric-label">抓水肘角</div>
-          <div class="metric-value">{elbow['avg_angle']:.1f}&deg;</div>
-          <div class="metric-optimal">理想範圍：80&ndash;100&deg;</div>
+          <div class="metric-label">抓水肘角（水下期最大屈曲）</div>
+          <div class="metric-value">{elbow['catch_angle']:.1f}&deg;</div>
+          <div class="metric-optimal">理想範圍：{th['elbow_optimal_min']}&ndash;{th['elbow_optimal_max']}&deg;</div>
           {extra}
         </div>""")
 
     rotation = metrics.get('rotation', {})
-    if rotation.get('avg_rotation') is not None:
+    if not note_unavailable('rotation') and rotation.get('avg_rotation') is not None:
+        peak = ""
+        if rotation.get('peak_rotation') is not None:
+            peak = f"<div class='metric-sub'>最大：{rotation['peak_rotation']:.1f}&deg;</div>"
         cards.append(f"""
         <div class="metric-card">
-          <div class="metric-label">身體轉肩角度</div>
+          <div class="metric-label">身體滾轉角度</div>
           <div class="metric-value">{rotation['avg_rotation']:.1f}&deg;</div>
-          <div class="metric-optimal">理想範圍：45&ndash;60&deg;</div>
-          <div class="metric-sub">範圍：{rotation['min_rotation']:.1f}&deg; &ndash; {rotation['max_rotation']:.1f}&deg;</div>
+          <div class="metric-optimal">理想範圍：{th['rotation_optimal_min']}&ndash;{th['rotation_optimal_max']}&deg;</div>
+          {peak}
+        </div>""")
+
+    entry = metrics.get('entry', {})
+    if not note_unavailable('entry') and entry.get('max_crossing') is not None:
+        v = entry['max_crossing']
+        desc = (f"越過中線 {abs(v)*100:.0f}%" if v < 0
+                else f"外側 {v*100:.0f}%，未越線")
+        cards.append(f"""
+        <div class="metric-card">
+          <div class="metric-label">入水點左右偏移</div>
+          <div class="metric-value">{desc}</div>
+          <div class="metric-optimal">容許越線：{abs(th['entry_crossing'])*100:.0f}% 肩寬內</div>
         </div>""")
 
     stroke_rate = metrics.get('stroke_rate', {})
-    if stroke_rate.get('spm') is not None:
+    if not note_unavailable('stroke_rate') and stroke_rate.get('spm') is not None:
         cards.append(f"""
         <div class="metric-card">
           <div class="metric-label">划頻</div>
-          <div class="metric-value">{stroke_rate['spm']:.1f} SPM</div>
-          <div class="metric-optimal">理想範圍：50&ndash;60 SPM</div>
-          <div class="metric-sub">時長：{stroke_rate['duration']:.1f}秒 | 划水次數：{stroke_rate['total_strokes']}</div>
+          <div class="metric-value">{stroke_rate['spm']:.0f} 次/分</div>
+          <div class="metric-optimal">參考範圍：{th['stroke_rate_min']}&ndash;{th['stroke_rate_max']} 次/分</div>
+          <div class="metric-sub">{stroke_rate['cycles_per_min']:.1f} 週期/分 | 分析 {stroke_rate['duration']:.1f} 秒</div>
         </div>""")
 
     head = metrics.get('head', {})
-    if head.get('stability') is not None:
+    if not note_unavailable('head') and head.get('lift_ratio') is not None:
         cards.append(f"""
         <div class="metric-card">
-          <div class="metric-label">頭部穩定度</div>
-          <div class="metric-value">{head['stability'] * 100:.1f}%</div>
-          <div class="metric-optimal">越高越好</div>
+          <div class="metric-label">換氣抬頭幅度</div>
+          <div class="metric-value">{head['lift_ratio']*100:.0f}%</div>
+          <div class="metric-optimal">建議低於軀幹長的 {th['head_lift']*100:.0f}%</div>
         </div>""")
 
     kick = metrics.get('kick', {})
-    if kick.get('avg_knee_angle') is not None:
+    if not note_unavailable('kick') and kick.get('peak_flexion') is not None:
         cards.append(f"""
         <div class="metric-card">
-          <div class="metric-label">踢腿動作（膝關節角度）</div>
-          <div class="metric-value">{kick['avg_knee_angle']:.1f}&deg;</div>
-          <div class="metric-optimal">應接近170&deg;</div>
+          <div class="metric-label">踢腿膝關節（最大屈曲）</div>
+          <div class="metric-value">{kick['peak_flexion']:.1f}&deg;</div>
+          <div class="metric-optimal">建議不低於 {th['knee_excessive_bend']}&deg;（180&deg;=打直）</div>
         </div>""")
 
     if metrics.get('valid_frame_ratio') is not None:
@@ -91,6 +119,16 @@ def _metric_cards_html(metrics: Dict) -> str:
           <div class="metric-label">偵測品質</div>
           <div class="metric-value">{pct:.1f}%</div>
           <div class="metric-optimal">的影格成功分析</div>
+        </div>""")
+
+    # 這個視角量不到的項目要明講，不能靜靜消失——
+    # 使用者看不到某個項目時，會以為是「沒問題」而不是「沒量」。
+    for label, reason in unavailable:
+        cards.append(f"""
+        <div class="metric-card metric-card-unavailable">
+          <div class="metric-label">{label}</div>
+          <div class="metric-value" style="opacity:.55;font-size:1.1rem">未量測</div>
+          <div class="metric-optimal">{reason}</div>
         </div>""")
 
     return "".join(cards)
