@@ -16,6 +16,10 @@ from src.stroke_analyzer import StrokeAnalyzer
 from src.visualizer import Visualizer
 from src.feedback_generator import FeedbackGenerator
 from src.html_report import generate_html_report
+from src.models.freestyle_rules import (
+    VIEW_SIDE, VIEW_OVERHEAD, VIEW_LABELS,
+    PROFILE_STUDENT, PROFILE_COMPETITIVE, PROFILE_LABELS, DEFAULT_PROFILE,
+)
 
 
 def main():
@@ -71,6 +75,21 @@ Examples:
         help='Open the generated HTML report in your browser when done'
     )
 
+    parser.add_argument(
+        '--view',
+        choices=[VIEW_SIDE, VIEW_OVERHEAD],
+        default=VIEW_SIDE,
+        help='拍攝視角。side=側拍（手肘/踢腿/抬頭），overhead=俯瞰（滾轉/入水偏移）。'
+             '視角不對的指標會標示為無法量測，而不是給出無意義的數字。'
+    )
+
+    parser.add_argument(
+        '--profile',
+        choices=[PROFILE_STUDENT, PROFILE_COMPETITIVE],
+        default=DEFAULT_PROFILE,
+        help='選手族群，決定判定門檻。student=高中一般生／游泳課，competitive=校隊競技選手'
+    )
+
     args = parser.parse_args()
 
     # Validate input file
@@ -105,7 +124,7 @@ Examples:
 
         # Step 2: Analyze stroke mechanics
         print("Step 2/4: Analyzing stroke mechanics...")
-        analyzer = StrokeAnalyzer()
+        analyzer = StrokeAnalyzer(view=args.view, profile=args.profile)
         analysis_results = analyzer.analyze_video(pose_data)
 
         if 'error' in analysis_results:

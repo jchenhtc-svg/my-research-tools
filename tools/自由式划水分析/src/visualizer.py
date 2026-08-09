@@ -132,7 +132,7 @@ class Visualizer:
         landmarks = pose['landmarks']
 
         # Draw elbow angle
-        if analysis['metrics'].get('elbow', {}).get('avg_angle') is not None:
+        if analysis['metrics'].get('elbow', {}).get('catch_angle') is not None:
             # Left elbow
             left_shoulder = landmarks['left_shoulder']
             left_elbow = landmarks['left_elbow']
@@ -178,31 +178,34 @@ class Visualizer:
         # Metrics
         metrics = analysis['metrics']
 
-        if metrics.get('elbow', {}).get('avg_angle') is not None:
-            elbow_avg = metrics['elbow']['avg_angle']
-            color = self._get_angle_color(elbow_avg, 80, 100, 120)
+        elbow = metrics.get('elbow', {})
+        if elbow.get('available') and elbow.get('catch_angle') is not None:
+            catch = elbow['catch_angle']
+            color = self._get_angle_color(catch, 90, 110, 125)
             self._draw_text(
                 frame,
-                f"Elbow Angle: {elbow_avg:.0f}deg",
+                f"Catch Elbow: {catch:.0f}deg",
                 (10, y_offset),
                 scale=0.5,
                 color=color
             )
             y_offset += line_height
 
-        if metrics.get('rotation', {}).get('avg_rotation') is not None:
-            rotation_avg = metrics['rotation']['avg_rotation']
-            color = self._get_angle_color(rotation_avg, 45, 60, 30, reverse=True)
+        rotation = metrics.get('rotation', {})
+        if rotation.get('available') and rotation.get('avg_rotation') is not None:
+            rotation_avg = rotation['avg_rotation']
+            color = self._get_angle_color(rotation_avg, 40, 65, 30, reverse=True)
             self._draw_text(
                 frame,
-                f"Body Rotation: {rotation_avg:.0f}deg",
+                f"Body Roll: {rotation_avg:.0f}deg",
                 (10, y_offset),
                 scale=0.5,
                 color=color
             )
             y_offset += line_height
 
-        if metrics.get('stroke_rate', {}).get('spm') is not None:
+        if metrics.get('stroke_rate', {}).get('available') and \
+                metrics['stroke_rate'].get('spm') is not None:
             spm = metrics['stroke_rate']['spm']
             self._draw_text(
                 frame,
