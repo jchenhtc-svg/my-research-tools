@@ -153,7 +153,9 @@ def generate_html_report(analysis_results: Dict, video_name: str = "") -> str:
     critical_issues = [i for i in issues if i.severity == SEVERITY_CRITICAL]
     moderate_issues = [i for i in issues if i.severity == SEVERITY_MODERATE]
     minor_issues = [i for i in issues if i.severity == SEVERITY_MINOR]
-    insight = fg._generate_quick_insight(rating, critical_issues, moderate_issues)
+    measured, total = fg._coverage(metrics)
+    insight = fg._generate_quick_insight(rating, critical_issues, moderate_issues,
+                                         measured, total)
     strengths = fg._identify_strengths(metrics, issues)
 
     valid_ratio = metrics.get('valid_frame_ratio')
@@ -170,6 +172,11 @@ def generate_html_report(analysis_results: Dict, video_name: str = "") -> str:
           請斟酌採信這次的評分，建議重新拍攝一支更長、更清楚的影片
           （涵蓋5&ndash;6次以上完整划水週期，選手全程都在鏡頭內）。
         </div>"""
+
+    coverage_note = ""
+    if measured < total:
+        coverage_note = (f'<div class="score-caveat">本次只量測到 {measured}/{total} 項指標，'
+                         f'未量測的項目不列入評分，分數僅供參考</div>')
 
     action_items = []
     n = 1
@@ -300,6 +307,7 @@ def generate_html_report(analysis_results: Dict, video_name: str = "") -> str:
     display: flex; flex-direction: column; align-items: center; justify-content: center;
   }}
   .score-circle .num {{ font-size: 2.2rem; font-weight: 700; }}
+  .score-caveat {{ font-size: .82rem; opacity: .75; margin-top: 4px; font-weight: 400; }}
   .low-confidence-banner {{
     background: #fff3cd; border: 2px solid #f0ad4e; color: #7a5200;
     border-radius: 12px; padding: 16px 20px; margin-top: 20px; line-height: 1.6;
@@ -378,7 +386,7 @@ def generate_html_report(analysis_results: Dict, video_name: str = "") -> str:
     <div class="score-circle">
       <div class="num">{rating}/10</div>
     </div>
-    <div>技術總評分</div>
+    <div>技術總評分{coverage_note}</div>
   </div>
 
   <div class="card insight-card">
