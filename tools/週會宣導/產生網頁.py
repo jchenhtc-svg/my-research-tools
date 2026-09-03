@@ -1,0 +1,186 @@
+#!/usr/bin/env python3
+"""把一集週會宣導腳本（JSON）產生成一個可雙擊播放的單檔 HTML。
+
+播放引擎不在這裡，而是在技能 .claude/skills/ai-dialogue-podcast-builder/assets/template.html。
+這支程式只做一件事：把腳本資料塞進那個範本，其他一律不動。
+所以每週出新的一集，只要新增一個 JSON，不需要改網頁或改這支程式。
+
+用法：
+    python3 產生網頁.py                      # 產生 腳本/ 底下全部
+    python3 產生網頁.py 腳本/04-*.json        # 只產生指定的一集
+"""
+
+import json
+import re
+import sys
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+REPO = HERE.parent.parent
+TEMPLATE = REPO / ".claude" / "skills" / "ai-dialogue-podcast-builder" / "assets" / "template.html"
+SCRIPT_DIR = HERE / "腳本"
+OUT_DIR = HERE / "網頁"
+
+# 範本裡「資料區」的頭尾，中間整段會被換掉；引擎與樣式維持原樣。
+DATA_START = "const ROLES = {"
+DATA_END = "// flatten SCRIPT into d[]"
+
+WRAP_END = "\n</div>\n\n<script>\n"
+
+
+def js(value):
+    """轉成安全的 JS 字面值（中文不轉義，比較好讀也好除錯）。"""
+    return json.dumps(value, ensure_ascii=False)
+
+
+def build_data_block(ep):
+    roles = ep["roles"]
+
+    role_lines = []
+    for r in roles:
+        role_lines.append(
+            '  {name}: {{key:"{key}", color:"{color}", basePitch:{pitch:.2f}, '
+            'baseRate:{rate:.2f}, avatar:"{avatar}", side:"{side}"}}'.format(
+                name=js(r["name"]), key=r["key"], color=r["color"],
+                pitch=r["pitch"], rate=r["rate"], avatar=r["avatar"], side=r["side"],
+            )
+        )
+
+    scene_blocks = []
+    for scene in ep["scenes"]:
+        out = []
+        for line in scene["lines"]:
+            role, text = line[0], line[1]
+            meta = line[2] if len(line) > 2 else None
+            if meta:
+                parts = ", ".join(f"{k}:{js(v)}" for k, v in meta.items())
+                out.append(f"  [{js(role)}, {js(text)}, {{{parts}}}]")
+            else:
+                out.append(f"  [{js(role)}, {js(text)}]")
+        scene_blocks.append(
+            '{{bg:"{bg}", tag:{tag}, icon:"{icon}", lines:[\n{lines}\n]}}'.format(
+                bg=scene["bg"], tag=js(scene["tag"]), icon=scene["icon"],
+                lines=",\n".join(out),
+            )
+        )
+
+    return (
+        "const ROLES = {\n" + ",\n".join(role_lines) + "\n};\n"
+        + "const ROLE_ORDER = " + js([r["name"] for r in roles]) + ";\n"
+        + "const DEFAULT_EXPR = "
+        + js({r["name"]: r["expr"] for r in roles}) + ";\n\n"
+        + "const SCRIPT = [\n" + ",\n".join(scene_blocks) + "\n];\n\n"
+        + "const GOLDEN_QUOTE = " + js(ep["golden_quote"]) + ";\n"
+        + "const MANAGER_QUESTION = " + js(ep["manager_question"]) + ";\n\n"
+    )
+
+
+def build_masthead(ep):
+    chips = "\n".join(
+        '      <div class="chip"><span class="dot {key}">{avatar}</span>{chip}</div>'.format(
+            key=r["key"], avatar=r["avatar"], chip=r["chip"]
+        )
+        for r in ep["roles"]
+    )
+    return (
+        '  <div class="masthead">\n'
+        f'    <div class="idplate">EP {ep["episode"]:02d}</div>\n'
+        f'    <div class="kicker"><span class="led"></span>《{ep["series"]}》{ep["episode_label"]}晨會宣導</div>\n'
+        f'    <h1>{ep["title"]}</h1>\n'
+        f'    <div class="sub">{ep["subtitle"]}</div>\n'
+        f'    <div class="cast">\n{chips}\n    </div>\n'
+        '  </div>\n'
+    )
+
+
+def build_prep_card(ep):
+    notes = ep.get("prep_notes")
+    if not notes:
+        return ""
+    items = "\n".join(f"      <li>{n}</li>" for n in notes)
+    return (
+        '\n  <div class="card">\n'
+        '    <div id="prepHead" class="panel-head" onclick="togglePrep()">\n'
+        '      <h2>主管備課筆記（不會播出）</h2>\n'
+        '      <span class="arrow">▾</span>\n'
+        '    </div>\n'
+        '    <div id="prepBody" class="panel-body">\n'
+        '      <ul style="margin:0;padding-left:20px;line-height:1.85;'
+        'font-size:13.5px;color:var(--sub);font-weight:500">\n'
+        f'{items}\n'
+        '      </ul>\n'
+        '    </div>\n'
+        '  </div>\n'
+    )
+
+
+PREP_TOGGLE_JS = """
+function togglePrep(){
+  document.getElementById("prepHead").classList.toggle("open");
+  document.getElementById("prepBody").classList.toggle("open");
+}
+"""
+
+
+def render(ep, template):
+    start = template.index(DATA_START)
+    end = template.index(DATA_END)
+    html = template[:start] + build_data_block(ep) + template[end:]
+
+    # 標題列
+    html = re.sub(
+        r"<title>.*?</title>",
+        f'<title>《{ep["series"]}》{ep["episode_label"]}｜{ep["title"]}</title>',
+        html, count=1, flags=re.S,
+    )
+    html = re.sub(
+        r'  <div class="masthead">.*?\n  </div>\n',
+        lambda _: build_masthead(ep),
+        html, count=1, flags=re.S,
+    )
+
+    # 說明文字
+    html = re.sub(
+        r'<div class="hint">.*?</div>',
+        '<div class="hint">按「執行播放」會自動一段接一段唸完整集，'
+        '字幕跟著唸到的地方變色。四個角色各有自己的聲音、音調與語速，'
+        '可以在下面的「配音設定」逐一調整；RATE 是整體語速（0.75×～1.5×）。'
+        '播完會停在今日金句，再按一次播放就從頭重播。</div>',
+        html, count=1, flags=re.S,
+    )
+
+    prep = build_prep_card(ep)
+    if prep:
+        html = html.replace(WRAP_END, prep + WRAP_END, 1)
+        html = html.replace("\nfunction togglePanel(){", PREP_TOGGLE_JS + "\nfunction togglePanel(){", 1)
+
+    return html
+
+
+def out_name(ep):
+    return f'第{ep["episode"]:02d}週_{ep["title"]}.html'
+
+
+def main(argv):
+    if not TEMPLATE.exists():
+        sys.exit(f"找不到播放器範本：{TEMPLATE}\n請確認技能 ai-dialogue-podcast-builder 已在 .claude/skills/ 底下。")
+
+    targets = [Path(a) for a in argv] or sorted(SCRIPT_DIR.glob("*.json"))
+    if not targets:
+        sys.exit(f"{SCRIPT_DIR} 底下沒有腳本 JSON。")
+
+    template = TEMPLATE.read_text(encoding="utf-8")
+    OUT_DIR.mkdir(exist_ok=True)
+
+    for path in targets:
+        ep = json.loads(path.read_text(encoding="utf-8"))
+        dest = OUT_DIR / out_name(ep)
+        dest.write_text(render(ep, template), encoding="utf-8")
+        n = sum(len(s["lines"]) for s in ep["scenes"])
+        print(f"✅ {path.name} → 網頁/{dest.name}（{len(ep['scenes'])} 幕 / {n} 段對話）")
+
+    print("\n產生完成。雙擊「網頁」資料夾裡的 .html 就能播放，不需要安裝任何東西。")
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
