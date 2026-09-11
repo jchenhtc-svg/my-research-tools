@@ -356,6 +356,7 @@ function faceSVGWrapped(role, expr){
 }
 
 let i=0, auto=false;
+let onEndCard=false;
 let zhVoices=[];
 let cfg = {};
 
@@ -365,13 +366,14 @@ const who=document.getElementById("count"),
       panelBody=document.getElementById("panelBody"),
       bgLayer=document.getElementById("bgLayer"), charSvg=document.getElementById("charSvg"),
       charWrap=document.getElementById("charWrap"), roleLabel=document.getElementById("roleLabel"),
-      speechBubble=document.getElementById("speechBubble"), sceneTag=document.getElementById("sceneTag"),
+      speechBubble=document.getElementById("speechBubble"),
       panelCount=document.getElementById("panelCount"), speedlines=document.getElementById("speedlines"),
       impact=document.getElementById("impact"), sfxText=document.getElementById("sfxText"), sparkWrap=document.getElementById("sparkWrap"),
       iconRowLeft=document.getElementById("iconRowLeft"), iconRowRight=document.getElementById("iconRowRight"),
       shutter=document.getElementById("shutter"), dotsRow=document.getElementById("dotsRow");
 
 function render(){
+  onEndCard = false;
   const role = d[i][0], meta = ROLES[role], p = PANELS[i];
 
   bgLayer.className = "bgLayer bg-" + p.bg;
@@ -528,8 +530,8 @@ function flashRender(cb){
 }
 
 function showEndCard(){
+  onEndCard = true;
   bgLayer.className = "bgLayer bg-spotlight";
-  sceneTag.textContent = "尾聲";
   panelCount.textContent = "完";
   dotsRow.innerHTML = SCRIPT.map((s,idx) => `<span class="pdot active"></span>`).join("");
   charWrap.innerHTML = "";
@@ -561,8 +563,18 @@ function playFrom(){
 window.play = playFrom;
 
 function pause(){ auto=false; speechSynthesis.pause(); render(); }
-function next(){ speechSynthesis.cancel(); auto=false; if(i<d.length-1) i++; flashRender(); }
-function prev(){ speechSynthesis.cancel(); auto=false; if(i>0) i--; flashRender(); }
+function next(){
+  speechSynthesis.cancel(); auto=false;
+  if(onEndCard) return;
+  if(i<d.length-1){ i++; flashRender(); }
+  else { shutter.classList.add("on"); setTimeout(() => { showEndCard(); shutter.classList.remove("on"); }, 110); }
+}
+function prev(){
+  speechSynthesis.cancel(); auto=false;
+  if(onEndCard){ onEndCard=false; flashRender(); return; }
+  if(i>0) i--;
+  flashRender();
+}
 
 
 rate.oninput = () => rv.textContent = (+rate.value).toFixed(2)+"x";
