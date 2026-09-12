@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>《工程師的價值（青年示範版）》示範｜遲到 15 分鐘，會怎樣？</title>
+<title>《工程師的價值》第七篇｜客戶生氣的時候，你在聽什麼？</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -151,10 +151,10 @@ select.voice-select{width:100%;font-size:12px;padding:8px 10px;border-radius:8px
 <div class="wrap">
 
   <div class="masthead">
-    <div class="idplate">EP 6b</div>
-    <div class="kicker"><span class="led"></span>《工程師的價值（青年示範版）》示範晨會宣導</div>
-    <h1>遲到 15 分鐘，會怎樣？</h1>
-    <div class="sub">同一個主題，改寫成更短、更快、更有梗的版本　·　約 2～3 分鐘</div>
+    <div class="idplate">EP 07</div>
+    <div class="kicker"><span class="led"></span>《工程師的價值》第七篇晨會宣導</div>
+    <h1>客戶生氣的時候，你在聽什麼？</h1>
+    <div class="sub">先處理情緒，事情才有機會被解決　·　約 2～3 分鐘</div>
     <div class="cast">
       <div class="chip"><span class="dot host">主</span>主持人 · 快、直接、有梗</div>
       <div class="chip"><span class="dot eng">凱</span>阿凱 · 自嘲型工程師</div>
@@ -239,9 +239,9 @@ select.voice-select{width:100%;font-size:12px;padding:8px 10px;border-radius:8px
     </div>
     <div id="prepBody" class="panel-body">
       <ul style="margin:0;padding-left:20px;line-height:1.85;font-size:13.5px;color:var(--sub);font-weight:500">
-      <li>這是第六篇的年輕化示範版，同一主題（準時＝尊重客戶的時間），台詞改寫成更短、更口語、更快進入重點的版本，開場也改成先拋反差再進故事，而不是先鋪陳。</li>
-      <li>拿掉了原版裡「航空/醫療/SERVQUAL」等理論名詞的正式講法，改成一句話帶過，把「有依據」壓縮成「附帶說明」，不當成主要說服力來源——年輕受眾更吃故事節奏跟反差感，而不是理論佐證。</li>
-      <li>這只是示範，用來跟原版比較語氣差異；如果方向對，可以整個系列都做一份對應的年輕化版本，或者依實際受眾組成挑一種用。</li>
+      <li>客服／衝突管理研究常見觀點：情緒未被安撫前，對方的認知資源會優先花在「有沒有被理解」，講道理或給方案在這個階段很難被聽進去；先承接情緒、再處理事情，成功率明顯較高。</li>
+      <li>「複述對方重點」（active listening 的核心技巧之一）不只是話術，重點是讓對方確認「你聽到的版本」跟他想表達的一致，避免雞同鴨講。</li>
+      <li>帶討論提醒：可以現場示範一次「先解釋 vs 先複述」的對比，讓同仁自己感受語氣差異，比空講道理更有效。</li>
       </ul>
     </div>
   </div>
@@ -259,48 +259,47 @@ const ROLE_ORDER = ["主持人", "阿凱工程師", "主管", "客戶"];
 const DEFAULT_EXPR = {"主持人": "calm", "阿凱工程師": "neutral", "主管": "stern", "客戶": "angry"};
 
 const SCRIPT = [
-{bg:"studio", tag:"開場：先問一句", icon:"clock", lines:[
-  ["主持人", "遲到 15 分鐘，很嚴重嗎？", {expr:"neutral"}],
-  ["主持人", "說實話，我以前也覺得——修好就好，遲到而已，是在演哪齣。", {expr:"sheepish", effect:"sweat"}],
-  ["主持人", "直到我看到接下來這個故事。", {expr:"stern"}]
+{bg:"studio", tag:"開場：先問一句", icon:"question", lines:[
+  ["主持人", "客戶生氣的時候，你都在想什麼？", {expr:"neutral"}],
+  ["主持人", "我以前都在想——他到底想怎樣，我只是想趕快修好設備。", {expr:"sheepish", effect:"sweat"}],
+  ["主持人", "後來才知道，這樣想，剛好把事情搞得更糟。", {expr:"stern"}]
 ]},
-{bg:"workshop", tag:"故事：晚 15 分鐘", icon:"clock", lines:[
-  ["阿凱工程師", "有一次，我遲到 15 分鐘。", {expr:"neutral"}],
-  ["阿凱工程師", "心裡想：反正到了就修，客戶應該不會在意吧。", {expr:"confident"}],
-  ["客戶", "你們上次不是修過了？現在又要重查？", {expr:"angry", effect:"impact", sfx:"！"}],
-  ["阿凱工程師", "傻眼。", {expr:"shocked"}]
+{bg:"phone", tag:"故事：解釋得很清楚", icon:"phoneAlert", lines:[
+  ["阿凱工程師", "有一次客戶在電話裡罵，我想都沒想，直接解釋技術原因。", {expr:"confident"}],
+  ["阿凱工程師", "我講得很清楚——是網路設定的問題，不是我們的錯。", {expr:"confident"}],
+  ["客戶", "我不管是誰的問題！我要的是有人聽我把話講完！", {expr:"angry", effect:"impact", sfx:"！"}],
+  ["阿凱工程師", "……", {expr:"shocked"}]
 ]},
 {bg:"office", tag:"主管一句話", icon:"question", lines:[
-  ["主管", "你有跟客戶說你會晚嗎？", {expr:"stern"}],
-  ["阿凱工程師", "……沒有。", {expr:"sheepish", effect:"sweat"}],
-  ["主管", "那就對了。", {expr:"stern"}]
+  ["主管", "你在回答他的問題，還是回答他的情緒？", {expr:"stern"}],
+  ["阿凱工程師", "蛤？", {expr:"sheepish", effect:"sweat"}],
+  ["主管", "他在氣的時候，你給答案，他聽不進去。", {expr:"stern"}]
 ]},
-{bg:"office", tag:"15 分鐘到底是什麼", icon:"layers", lines:[
-  ["主持人", "15 分鐘，聽起來很少對吧？", {expr:"neutral"}],
-  ["主持人", "但對客戶來說，是他取消會議、卡住一整條時間線的 15 分鐘。", {expr:"shocked", effect:"impact"}],
-  ["主持人", "重點從來不是遲到，是有沒有把對方的時間當一回事。", {expr:"spark", effect:"spark"}]
+{bg:"office", tag:"順序顛倒", icon:"layers", lines:[
+  ["主持人", "客戶生氣的時候，通常要的不是解釋。", {expr:"neutral"}],
+  ["主持人", "是有沒有人先聽他說完。", {expr:"spark", effect:"spark"}],
+  ["主持人", "這個順序顛倒，道理講得再對，也沒用。", {expr:"stern"}]
 ]},
 {bg:"studio", tag:"別家怎麼做", icon:"checkCircle", lines:[
-  ["主持人", "飛機誤點，航空公司會馬上廣播——不是禮貌，是規定。", {expr:"confident"}],
-  ["主持人", "看診等最崩潰的，不是等，是不知道要等多久。", {expr:"stern"}],
-  ["主持人", "道理一樣：不確定感，才是真正惹怒人的東西。", {expr:"spark"}]
+  ["主持人", "客服研究早就講過：先處理情緒，再處理事情，客戶才聽得進方案。", {expr:"confident"}],
+  ["主持人", "順序對了，事情才有機會被解決。", {expr:"spark"}]
 ]},
 {bg:"studio", tag:"記住三件事", icon:"checkCircle", lines:[
   ["主持人", "所以只要記住三件事。", {expr:"calm"}],
-  ["主持人", "會晚，先講。", {expr:"confident"}],
-  ["主持人", "講多久，講清楚。", {expr:"confident"}],
-  ["主持人", "遲到了，說一句抱歉。", {expr:"confident"}]
+  ["主持人", "先聽完，不要打斷。", {expr:"confident"}],
+  ["主持人", "複述一次他的重點，讓他知道你有聽到。", {expr:"confident"}],
+  ["主持人", "最後，才提解決方案。", {expr:"confident"}]
 ]},
 {bg:"spotlight", tag:"結尾：後來呢", icon:"upgrade", lines:[
-  ["阿凱工程師", "後來我養成習慣：晚就先傳訊息。", {expr:"confident"}],
-  ["阿凱工程師", "神奇的是——一樣遲到，客戶反而說沒事、辛苦了。", {expr:"spark", effect:"spark"}],
-  ["主持人", "因為你把「不知道發生什麼事」的等待，變成了「有掌控感」的等待。", {expr:"confident"}],
-  ["主持人", "設備可以晚修，信任不能已讀不回。", {expr:"spark", effect:"spark"}]
+  ["阿凱工程師", "後來我學會先說一句：我聽到你的意思是……", {expr:"confident"}],
+  ["阿凱工程師", "客戶整個語氣都軟下來。", {expr:"spark", effect:"spark"}],
+  ["主持人", "因為他不是要吵贏，是要有人聽懂他。", {expr:"confident"}],
+  ["主持人", "修好設備是技術，聽懂客戶才是專業。", {expr:"spark", effect:"spark"}]
 ]}
 ];
 
-const GOLDEN_QUOTE = "遲到不可怕，<br>可怕的是——已讀不回的十五分鐘。";
-const MANAGER_QUESTION = "最近有沒有哪一次，我們讓客戶等到心累？<br>下次覺得會晚，先傳一句話就好。";
+const GOLDEN_QUOTE = "客戶要的不是答案，<br>是被聽見。";
+const MANAGER_QUESTION = "最近一次被客訴，你是先解釋，還是先聽完？<br>下次先把「我聽到你的意思是……」放在嘴邊。";
 
 // flatten SCRIPT into d[] (dialogue) + PANELS[] (per-line HUD metadata) + ICONS[] (per-scene icon)
 const d = [];
