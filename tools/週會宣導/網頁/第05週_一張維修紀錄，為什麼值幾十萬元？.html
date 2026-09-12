@@ -41,8 +41,36 @@ h1{margin:6px 0 2px;font-size:24px;font-weight:900;letter-spacing:.01em;line-hei
 .sceneTag{display:none}
 .panelCount{position:absolute;top:10px;right:12px;background:var(--line);color:#fff;font-weight:800;font-size:12px;padding:4px 12px;border-radius:999px;z-index:6}
 .stage{position:relative;flex:1;display:flex;flex-direction:column}
-.bgLayer{display:none}
-.speedlines,.impact,.sparkWrap,.iconRow{display:none !important}
+
+/* scene backdrop — a soft tint + faint watermark icon that changes with the scene,
+   so the panel reads as "we're on the phone / in the workshop / etc." without
+   competing with the character illustration or captions */
+.bgLayer{position:absolute;inset:0;z-index:0;display:flex;align-items:center;justify-content:center;overflow:hidden;transition:background .2s ease}
+.bgLayer svg{width:58%;height:58%;opacity:.07}
+.bgLayer svg *{stroke:var(--line) !important;fill:none !important}
+.bg-studio{background:#fafafa}
+.bg-workshop{background:#fdf5e8}
+.bg-office{background:#eef1fb}
+.bg-phone{background:#fdedf3}
+.bg-spotlight{background:radial-gradient(circle at 50% 32%,#fff3d6 0%,#ffffff 72%)}
+
+/* small corner badge showing the scene's icon, on the side opposite whoever's speaking */
+.iconRow{position:absolute;top:14px;z-index:6;display:flex;gap:6px}
+.iconRow.left{left:14px}
+.iconRow.right{right:14px}
+.iconBadge{width:28px;height:28px;border-radius:50%;background:#fff;border:2px solid var(--line);display:flex;align-items:center;justify-content:center}
+.iconBadge svg{width:16px;height:16px}
+.iconBadge svg *{stroke:var(--line);fill:none}
+
+/* standout-beat reactions, toggled per line via effect:"speed"|"impact"|"spark" */
+.speedlines{position:absolute;inset:0;z-index:1;opacity:0;transition:opacity .12s ease;pointer-events:none}
+.speedlines.on{opacity:1}
+.impact{position:absolute;top:6%;right:4%;z-index:6;opacity:0;transition:opacity .12s ease;pointer-events:none;text-align:center}
+.impact.on{opacity:1}
+.impact svg{width:90px;height:90px}
+.impact .sfx{margin-top:-84px;font-weight:900;font-size:15px;color:#7a1414;text-shadow:1px 1px 0 #fff}
+.sparkWrap{position:absolute;inset:0;z-index:6;opacity:0;transition:opacity .15s ease;pointer-events:none}
+.sparkWrap.on{opacity:1}
 
 .bubbleWrap{position:relative;top:0;left:0;right:0;padding:26px 22px 4px;z-index:6}
 .speechBubble{position:relative;background:transparent;border:none;padding:0;font-size:23px;line-height:1.42;color:var(--ink);font-weight:900;font-family:var(--disp);text-align:center;max-width:100%}
@@ -291,7 +319,7 @@ SCRIPT.forEach((scene, sceneIdx) => {
     const [role, text, meta] = line;
     d.push([role, text]);
     const expr = (meta && meta.expr) || DEFAULT_EXPR[role] || "neutral";
-    PANELS.push({bg: scene.bg, expr, effect: (meta && meta.effect) || null, sfx: (meta && meta.sfx) || "", tag: scene.tag, sceneIdx});
+    PANELS.push({bg: scene.bg, icon: scene.icon, expr, effect: (meta && meta.effect) || null, sfx: (meta && meta.sfx) || "", tag: scene.tag, sceneIdx});
     ICONS.push({left: ROLES[role].side==="left" ? [] : [scene.icon], right: ROLES[role].side==="left" ? [scene.icon] : []});
   });
 });
@@ -384,6 +412,7 @@ function render(){
   const role = d[i][0], meta = ROLES[role], p = PANELS[i];
 
   bgLayer.className = "bgLayer bg-" + p.bg;
+  bgLayer.innerHTML = iconSVG(p.icon);
   panelCount.textContent = `${p.sceneIdx+1}/${SCRIPT.length}`;
   dotsRow.innerHTML = SCRIPT.map((s,idx) => `<span class="pdot${idx===p.sceneIdx?" active":""}"></span>`).join("");
 
@@ -539,6 +568,7 @@ function flashRender(cb){
 function showEndCard(){
   onEndCard = true;
   bgLayer.className = "bgLayer bg-spotlight";
+  bgLayer.innerHTML = "";
   panelCount.textContent = "完";
   dotsRow.innerHTML = SCRIPT.map((s,idx) => `<span class="pdot active"></span>`).join("");
   charWrap.innerHTML = "";
