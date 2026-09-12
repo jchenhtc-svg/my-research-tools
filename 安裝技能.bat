@@ -1,22 +1,34 @@
 @echo off
-REM Install the wrap-up skill globally (Windows)
+REM Install this repo's skills globally (Windows)
 REM Double-click this file to install.
-REM After installing, the "shou-gong" skill works in ALL projects,
-REM not just this repo.
+REM After installing, the skills work in ALL projects, not just this repo.
+REM
+REM Skills installed:
+REM   wrap-up              say "shou-gong" to sync all three homes
+REM   baseline-ui          /baseline-ui <file> to review UI quality
+REM   fixing-accessibility /fixing-accessibility <file> to review a11y
 
 cd /d "%~dp0"
 
+set "SKILLS=wrap-up baseline-ui fixing-accessibility"
+set "SRC_DIR=%~dp0.claude\skills"
+set "DEST_DIR=%USERPROFILE%\.claude\skills"
+
 echo ======================================
-echo  Install wrap-up skill (global)
+echo  Install skills (global)
 echo ======================================
 echo.
 
-set "SRC=%~dp0.claude\skills\wrap-up"
-set "DEST=%USERPROFILE%\.claude\skills\wrap-up"
+REM Check every source first, so we never install only half of them.
+set "MISSING="
+for %%S in (%SKILLS%) do (
+    if not exist "%SRC_DIR%\%%S\SKILL.md" (
+        echo [ERROR] Source not found: %SRC_DIR%\%%S\SKILL.md
+        set "MISSING=1"
+    )
+)
 
-if not exist "%SRC%\SKILL.md" (
-    echo [ERROR] Source not found:
-    echo    %SRC%
+if defined MISSING (
     echo.
     echo Please run "git pull" first, then try again.
     echo.
@@ -24,28 +36,33 @@ if not exist "%SRC%\SKILL.md" (
     exit /b 1
 )
 
-echo Source: %SRC%
-echo Target: %DEST%
+echo Source: %SRC_DIR%
+echo Target: %DEST_DIR%
 echo.
 
-if exist "%DEST%\SKILL.md" (
-    echo [INFO] An older version is already installed. It will be overwritten.
-    echo.
+if not exist "%DEST_DIR%" mkdir "%DEST_DIR%"
+
+for %%S in (%SKILLS%) do (
+    if exist "%DEST_DIR%\%%S\SKILL.md" (
+        echo   %%S [older version found, overwriting]
+    ) else (
+        echo   %%S
+    )
+    xcopy /E /I /Y "%SRC_DIR%\%%S" "%DEST_DIR%\%%S" >nul
+    if errorlevel 1 (
+        echo [ERROR] Copy failed for %%S.
+        echo.
+        pause
+        exit /b 1
+    )
 )
 
-if not exist "%USERPROFILE%\.claude\skills" mkdir "%USERPROFILE%\.claude\skills"
-
-xcopy /E /I /Y "%SRC%" "%DEST%" >nul
-if %errorlevel% neq 0 (
-    echo [ERROR] Copy failed.
-    echo.
-    pause
-    exit /b 1
-)
-
+echo.
 echo [OK] Installed.
 echo.
-echo Restart Claude Code. The wrap-up skill now works in every
-echo project, not just this one.
+echo Restart Claude Code. In every project you can now:
+echo   - say "shou-gong" to sync all three homes
+echo   - /baseline-ui ^<file^>          review UI quality
+echo   - /fixing-accessibility ^<file^> review accessibility
 echo.
 pause

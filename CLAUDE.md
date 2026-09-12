@@ -7,6 +7,7 @@
 - **加新工具**：對我說「我想做一個 XXX 工具」→ 建 `tools/<工具名>/` 子資料夾、引導跟著影片做
 - **結束工作**：對我說「**收工**」→ 自動 commit + push + 更新 Obsidian 工作筆記（流程寫在 `.claude/skills/wrap-up/`）
 - **接續工作**：對我說「讀工作筆記、告訴我上次做到哪」
+- **介面檢查**：做網頁或 HTML 報告時說「`/baseline-ui <檔案>`」或「`/fixing-accessibility <檔案>`」→ 逐條列出問題與修法（技能在 `.claude/skills/`，來自開源專案 ibelick/ui-skills, MIT License）
 
 ## 工作桌 + 三個家
 - 📋 GDrive 工作桌：`H:\我的雲端硬碟\my-research-tools\`（自動跨電腦同步）
