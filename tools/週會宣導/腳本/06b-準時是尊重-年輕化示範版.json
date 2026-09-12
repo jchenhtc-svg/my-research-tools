@@ -1,0 +1,82 @@
+{
+  "series": "工程師的價值（青年示範版）",
+  "episode": "6b",
+  "episode_label": "示範",
+  "title": "遲到 15 分鐘，會怎樣？",
+  "subtitle": "同一個主題，改寫成更短、更快、更有梗的版本　·　約 2～3 分鐘",
+  "roles": [
+    { "name": "主持人",     "key": "host", "color": "#8ecae6", "avatar": "主", "side": "center", "pitch": 1.00, "rate": 1.05, "expr": "calm",    "chip": "主持人 · 快、直接、有梗" },
+    { "name": "阿凱工程師", "key": "eng",  "color": "#c8961e", "avatar": "凱", "side": "left",   "pitch": 0.85, "rate": 1.10, "expr": "neutral", "chip": "阿凱 · 自嘲型工程師" },
+    { "name": "主管",       "key": "mgr",  "color": "#3949ab", "avatar": "管", "side": "right",  "pitch": 1.14, "rate": 0.98, "expr": "stern",   "chip": "主管 · 一句話戳重點" },
+    { "name": "客戶",       "key": "cli",  "color": "#ec6fa0", "avatar": "客", "side": "right",  "pitch": 1.30, "rate": 1.15, "expr": "angry",   "chip": "客戶 · 短、直接、不留情" }
+  ],
+  "scenes": [
+    {
+      "tag": "開場：先問一句", "bg": "studio", "icon": "clock",
+      "lines": [
+        ["主持人", "遲到 15 分鐘，很嚴重嗎？", {"expr": "neutral"}],
+        ["主持人", "說實話，我以前也覺得——修好就好，遲到而已，是在演哪齣。", {"expr": "sheepish", "effect": "sweat"}],
+        ["主持人", "直到我看到接下來這個故事。", {"expr": "stern"}]
+      ]
+    },
+    {
+      "tag": "故事：晚 15 分鐘", "bg": "workshop", "icon": "clock",
+      "lines": [
+        ["阿凱工程師", "有一次，我遲到 15 分鐘。", {"expr": "neutral"}],
+        ["阿凱工程師", "心裡想：反正到了就修，客戶應該不會在意吧。", {"expr": "confident"}],
+        ["客戶", "你們上次不是修過了？現在又要重查？", {"expr": "angry", "effect": "impact", "sfx": "！"}],
+        ["阿凱工程師", "傻眼。", {"expr": "shocked"}]
+      ]
+    },
+    {
+      "tag": "主管一句話", "bg": "office", "icon": "question",
+      "lines": [
+        ["主管", "你有跟客戶說你會晚嗎？", {"expr": "stern"}],
+        ["阿凱工程師", "……沒有。", {"expr": "sheepish", "effect": "sweat"}],
+        ["主管", "那就對了。", {"expr": "stern"}]
+      ]
+    },
+    {
+      "tag": "15 分鐘到底是什麼", "bg": "office", "icon": "layers",
+      "lines": [
+        ["主持人", "15 分鐘，聽起來很少對吧？", {"expr": "neutral"}],
+        ["主持人", "但對客戶來說，是他取消會議、卡住一整條時間線的 15 分鐘。", {"expr": "shocked", "effect": "impact"}],
+        ["主持人", "重點從來不是遲到，是有沒有把對方的時間當一回事。", {"expr": "spark", "effect": "spark"}]
+      ]
+    },
+    {
+      "tag": "別家怎麼做", "bg": "studio", "icon": "checkCircle",
+      "lines": [
+        ["主持人", "飛機誤點，航空公司會馬上廣播——不是禮貌，是規定。", {"expr": "confident"}],
+        ["主持人", "看診等最崩潰的，不是等，是不知道要等多久。", {"expr": "stern"}],
+        ["主持人", "道理一樣：不確定感，才是真正惹怒人的東西。", {"expr": "spark"}]
+      ]
+    },
+    {
+      "tag": "記住三件事", "bg": "studio", "icon": "checkCircle",
+      "lines": [
+        ["主持人", "所以只要記住三件事。", {"expr": "calm"}],
+        ["主持人", "會晚，先講。", {"expr": "confident"}],
+        ["主持人", "講多久，講清楚。", {"expr": "confident"}],
+        ["主持人", "遲到了，說一句抱歉。", {"expr": "confident"}]
+      ],
+      "bullets": ["① 會晚，先講", "② 講多久，講清楚", "③ 遲到了，說一句抱歉"]
+    },
+    {
+      "tag": "結尾：後來呢", "bg": "spotlight", "icon": "upgrade",
+      "lines": [
+        ["阿凱工程師", "後來我養成習慣：晚就先傳訊息。", {"expr": "confident"}],
+        ["阿凱工程師", "神奇的是——一樣遲到，客戶反而說沒事、辛苦了。", {"expr": "spark", "effect": "spark"}],
+        ["主持人", "因為你把「不知道發生什麼事」的等待，變成了「有掌控感」的等待。", {"expr": "confident"}],
+        ["主持人", "設備可以晚修，信任不能已讀不回。", {"expr": "spark", "effect": "spark"}]
+      ]
+    }
+  ],
+  "golden_quote": "遲到不可怕，<br>可怕的是——已讀不回的十五分鐘。",
+  "manager_question": "最近有沒有哪一次，我們讓客戶等到心累？<br>下次覺得會晚，先傳一句話就好。",
+  "prep_notes": [
+    "這是第六篇的年輕化示範版，同一主題（準時＝尊重客戶的時間），台詞改寫成更短、更口語、更快進入重點的版本，開場也改成先拋反差再進故事，而不是先鋪陳。",
+    "拿掉了原版裡「航空/醫療/SERVQUAL」等理論名詞的正式講法，改成一句話帶過，把「有依據」壓縮成「附帶說明」，不當成主要說服力來源——年輕受眾更吃故事節奏跟反差感，而不是理論佐證。",
+    "這只是示範，用來跟原版比較語氣差異；如果方向對，可以整個系列都做一份對應的年輕化版本，或者依實際受眾組成挑一種用。"
+  ]
+}

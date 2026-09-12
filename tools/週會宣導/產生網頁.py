@@ -84,7 +84,7 @@ def build_masthead(ep):
     )
     return (
         '  <div class="masthead">\n'
-        f'    <div class="idplate">EP {ep["episode"]:02d}</div>\n'
+        f'    <div class="idplate">EP {ep_num(ep)}</div>\n'
         f'    <div class="kicker"><span class="led"></span>《{ep["series"]}》{ep["episode_label"]}晨會宣導</div>\n'
         f'    <h1>{ep["title"]}</h1>\n'
         f'    <div class="sub">{ep["subtitle"]}</div>\n'
@@ -157,8 +157,14 @@ def render(ep, template):
     return html
 
 
+def ep_num(ep):
+    """集數編號可以是整數（04）或字串（像示範版的 '6b'），兩種都要能顯示。"""
+    n = ep["episode"]
+    return f'{n:02d}' if isinstance(n, int) else str(n)
+
+
 def out_name(ep):
-    return f'第{ep["episode"]:02d}週_{ep["title"]}.html'
+    return f'第{ep_num(ep)}週_{ep["title"]}.html'
 
 
 def main(argv):
