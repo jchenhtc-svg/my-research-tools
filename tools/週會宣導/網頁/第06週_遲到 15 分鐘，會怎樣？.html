@@ -98,6 +98,9 @@ h1{margin:6px 0 2px;font-size:24px;font-weight:900;letter-spacing:.01em;line-hei
 .roleLabel{position:absolute;bottom:16px;font-weight:800;font-size:12.5px;padding:5px 14px;color:#fff;border-radius:999px;z-index:5;left:50%;transform:translateX(-50%);right:auto;clip-path:none}
 
 .bubbleWrap{order:-1}
+/* end card: center the quote+question block in the whole panel instead of
+   leaving it pinned to the top with empty space below */
+.bubbleWrap:has(.speechBubble.final){position:absolute;inset:0;z-index:8;display:flex;align-items:center;justify-content:center;padding:30px 24px}
 .dotsRow{display:flex;justify-content:center;gap:6px;margin-top:12px}
 .dotsRow .pdot{width:7px;height:7px;border-radius:50%;background:#c7c7c7}
 .dotsRow .pdot.active{background:var(--line);width:9px;height:9px}
@@ -398,6 +401,8 @@ function faceSVGWrapped(role, expr){
 
 let i=0, auto=false;
 let onEndCard=false;
+let actionSeq=0; // bumped by every next()/prev()/playFrom() step so a stale, already-
+                  // scheduled flashRender/showEndCard timer can tell it's been superseded
 let zhVoices=[];
 let cfg = {};
 
@@ -569,8 +574,29 @@ function speakCurrent(onend){
 
 // quick "scene cut" shutter flash before swapping the panel — gives a theatre-style transition between beats
 function flashRender(cb){
+  const seq = ++actionSeq;
   shutter.classList.add("on");
-  setTimeout(() => { render(); shutter.classList.remove("on"); if(cb) cb(); }, 110);
+  setTimeout(() => { if(seq===actionSeq){ render(); } shutter.classList.remove("on"); if(cb) cb(); }, 110);
+}
+
+// speak the closing golden quote (the manager's discussion question is meant to be
+// posed live in the room, so it stays silent — only the quote gets narration)
+function speakGoldenQuote(){
+  speechSynthesis.cancel();
+  const role = ROLES["主持人"] ? "主持人" : d[d.length-1][0];
+  const c = cfg[role] || {pitch:1, rateMul:1, voiceIdx:-1};
+  const spoken = speechText(
+    GOLDEN_QUOTE
+      .replace(/<br\s*\/?>/gi, " ")   // plain space — the source text already carries its own punctuation
+      .replace(/<[^>]+>/g, "")
+      .replace(/([，。！？])\s+/g, "$1") // don't leave a pause-inducing gap right after punctuation
+  );
+  const u = new SpeechSynthesisUtterance(spoken);
+  u.lang = "zh-TW";
+  u.pitch = c.pitch;
+  u.rate = Math.min(2, Math.max(0.4, (+rate.value) * c.rateMul));
+  if(c.voiceIdx >= 0 && zhVoices[c.voiceIdx]) u.voice = zhVoices[c.voiceIdx];
+  speechSynthesis.speak(u);
 }
 
 function showEndCard(){
@@ -588,6 +614,7 @@ function showEndCard(){
   speechBubble.innerHTML = `<div class="quoteLine">${GOLDEN_QUOTE}</div><div class="endQuestion">${MANAGER_QUESTION}</div>`;
   who.textContent = "播放完畢 — 今日金句與主管互動問題（再按一次執行播放可從頭重播）";
   bar.style.width = "100%";
+  speakGoldenQuote();
 }
 
 function playFrom(){
@@ -598,10 +625,13 @@ function playFrom(){
     if(auto && i < d.length-1){
       i++;
       flashRender(() => speakCurrent(step));
-    } else {
+    } else if(!onEndCard){
       auto = false;
+      onEndCard = true; // set immediately, not just inside showEndCard() — otherwise a
+                         // second call landing in this same 110ms window double-fires it
+      const seq = ++actionSeq;
       shutter.classList.add("on");
-      setTimeout(() => { showEndCard(); shutter.classList.remove("on"); }, 110);
+      setTimeout(() => { if(seq===actionSeq && onEndCard){ showEndCard(); } shutter.classList.remove("on"); }, 110);
     }
   };
   speakCurrent(step);
@@ -613,7 +643,13 @@ function next(){
   speechSynthesis.cancel(); auto=false;
   if(onEndCard) return;
   if(i<d.length-1){ i++; flashRender(); }
-  else { shutter.classList.add("on"); setTimeout(() => { showEndCard(); shutter.classList.remove("on"); }, 110); }
+  else {
+    onEndCard = true; // set immediately — a second "next" click inside this same
+                       // 110ms window must see onEndCard already true and no-op above
+    const seq = ++actionSeq;
+    shutter.classList.add("on");
+    setTimeout(() => { if(seq===actionSeq && onEndCard){ showEndCard(); } shutter.classList.remove("on"); }, 110);
+  }
 }
 function prev(){
   speechSynthesis.cancel(); auto=false;
