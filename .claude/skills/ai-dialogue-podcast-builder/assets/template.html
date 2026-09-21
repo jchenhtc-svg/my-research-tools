@@ -92,6 +92,13 @@ h1{margin:6px 0 2px;font-size:24px;font-weight:900;letter-spacing:.01em;line-hei
 .speechBubble.final .endQuestion{margin-top:16px;padding-top:16px;border-top:2px dashed var(--line);color:var(--ink);font-size:18px;font-weight:800;line-height:1.6;opacity:0;animation:questionRise .5s ease .2s forwards}
 @keyframes questionRise{0%{opacity:0;transform:translateY(12px)}100%{opacity:1;transform:translateY(0)}}
 
+/* end-card response box — saves the viewer's answer as a small local file
+   via a plain <a download> (no server, no network call, no upload anywhere) */
+.responseBox{margin-top:20px;padding-top:16px;border-top:2px dashed var(--line);text-align:left;opacity:0;animation:questionRise .5s ease .4s forwards}
+.responseInput{width:100%;min-height:64px;border:2px solid var(--line);border-radius:10px;padding:10px 12px;font-family:var(--disp);font-size:14px;color:var(--ink);resize:vertical;box-sizing:border-box}
+.responseSubmit{margin-top:8px;width:100%}
+.responseNote{margin-top:8px;font-size:12px;color:var(--sub);text-align:center;min-height:16px}
+
 .charWrap{position:relative;flex:1;display:flex;align-items:flex-end;justify-content:center;padding:10px 20px 20px;left:auto;bottom:auto;transform:none}
 .charSvg{width:180px;height:204px;display:block;filter:none}
 
@@ -100,7 +107,8 @@ h1{margin:6px 0 2px;font-size:24px;font-weight:900;letter-spacing:.01em;line-hei
 .bubbleWrap{order:-1}
 /* end card: center the quote+question block in the whole panel instead of
    leaving it pinned to the top with empty space below */
-.bubbleWrap:has(.speechBubble.final){position:absolute;inset:0;z-index:8;display:flex;align-items:center;justify-content:center;padding:30px 24px}
+.bubbleWrap:has(.speechBubble.final){position:absolute;inset:0;z-index:8;display:flex;align-items:center;justify-content:center;padding:30px 24px;overflow-y:auto}
+.speechBubble.final{width:100%}
 .dotsRow{display:flex;justify-content:center;gap:6px;margin-top:12px}
 .dotsRow .pdot{width:7px;height:7px;border-radius:50%;background:#c7c7c7}
 .dotsRow .pdot.active{background:var(--line);width:9px;height:9px}
@@ -570,6 +578,45 @@ function speakGoldenQuote(){
   speechSynthesis.speak(u);
 }
 
+// end-card response box: saves the viewer's answer as a small local file via
+// a plain <a download> — no fetch(), no server, no upload anywhere. Whoever
+// wants these collected can point the browser's default download folder at
+// a shared drive (e.g. a mapped NAS folder); this function never has to know.
+function submitResponse(){
+  const inputEl = document.getElementById("responseInput");
+  const note = document.getElementById("responseNote");
+  const text = inputEl.value.trim();
+  if(!text){ note.textContent = "打點字再送出喔"; return; }
+
+  const plainQuestion = MANAGER_QUESTION.replace(/<br\s*\/?>/gi, " ").replace(/<[^>]+>/g, "");
+  const payload = {
+    episode: EPISODE_LABEL,
+    question: plainQuestion,
+    response: text,
+    submittedAt: new Date().toISOString()
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type: "application/json"});
+  const url = URL.createObjectURL(blob);
+
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  const stamp = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}-`
+    + `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}-`
+    + String(Math.floor(1000 + Math.random()*9000));
+
+  const a = document.createElement("a");
+  a.href = url;
+  const safeLabel = EPISODE_LABEL.replace(/[\\/:*?"<>|]/g, "_"); // titles carry punctuation; Windows forbids these in filenames
+  a.download = `回應_${safeLabel}_${stamp}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+
+  inputEl.value = "";
+  note.textContent = "已送出，感謝分享！（檔案存到瀏覽器的下載資料夾）";
+}
+
 function showEndCard(){
   onEndCard = true;
   bgLayer.className = "bgLayer bg-spotlight";
@@ -582,7 +629,10 @@ function showEndCard(){
   roleLabel.textContent = ""; roleLabel.style.background = "transparent";
   speedlines.classList.remove("on"); impact.classList.remove("on"); sparkWrap.classList.add("on");
   speechBubble.className = "speechBubble final";
-  speechBubble.innerHTML = `<div class="quoteLine">${GOLDEN_QUOTE}</div><div class="endQuestion">${MANAGER_QUESTION}</div>`;
+  speechBubble.innerHTML = `<div class="quoteLine">${GOLDEN_QUOTE}</div><div class="endQuestion">${MANAGER_QUESTION}</div>`
+    + `<div class="responseBox"><textarea id="responseInput" class="responseInput" placeholder="打幾個字，說說你的想法……" maxlength="300"></textarea>`
+    + `<button type="button" class="responseSubmit" onclick="submitResponse()">送出回應</button>`
+    + `<div class="responseNote" id="responseNote"></div></div>`;
   who.textContent = "播放完畢 — 今日金句與主管互動問題（再按一次執行播放可從頭重播）";
   bar.style.width = "100%";
   speakGoldenQuote();

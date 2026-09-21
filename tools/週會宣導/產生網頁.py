@@ -71,7 +71,8 @@ def build_data_block(ep):
         + js({r["name"]: r["expr"] for r in roles}) + ";\n\n"
         + "const SCRIPT = [\n" + ",\n".join(scene_blocks) + "\n];\n\n"
         + "const GOLDEN_QUOTE = " + js(ep["golden_quote"]) + ";\n"
-        + "const MANAGER_QUESTION = " + js(ep["manager_question"]) + ";\n\n"
+        + "const MANAGER_QUESTION = " + js(ep["manager_question"]) + ";\n"
+        + "const EPISODE_LABEL = " + js(f'{ep_num(ep)}_{ep["title"]}') + ";\n\n"
     )
 
 
