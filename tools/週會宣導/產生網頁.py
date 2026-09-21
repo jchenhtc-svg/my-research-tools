@@ -6,8 +6,11 @@
 所以每週出新的一集，只要新增一個 JSON，不需要改網頁或改這支程式。
 
 用法：
-    python3 產生網頁.py                      # 產生 腳本/ 底下全部
+    python3 產生網頁.py                      # 產生 腳本/ 底下全部（公開版，網頁/，會進 git）
     python3 產生網頁.py 腳本/04-*.json        # 只產生指定的一集
+    python3 產生網頁.py --cloud               # 額外產生連得到 Cloudflare 的「雲端版」到
+                                              # 網頁-雲端版/（讀 cloudflare/local-config.json，
+                                              # 這兩個都在 .gitignore 裡，絕不會進 git）
 """
 
 import json
@@ -20,6 +23,8 @@ REPO = HERE.parent.parent
 TEMPLATE = REPO / ".claude" / "skills" / "ai-dialogue-podcast-builder" / "assets" / "template.html"
 SCRIPT_DIR = HERE / "腳本"
 OUT_DIR = HERE / "網頁"
+CLOUD_OUT_DIR = HERE / "網頁-雲端版"  # .gitignore 排除，絕不進版控
+CLOUD_CONFIG = HERE / "cloudflare" / "local-config.json"  # 同樣排除在外
 
 # 範本裡「資料區」的頭尾，中間整段會被換掉；引擎與樣式維持原樣。
 DATA_START = "const ROLES = {"
@@ -123,10 +128,22 @@ function togglePrep(){
 """
 
 
-def render(ep, template):
+def render(ep, template, cloud_config=None):
     start = template.index(DATA_START)
     end = template.index(DATA_END)
     html = template[:start] + build_data_block(ep) + template[end:]
+
+    if cloud_config:
+        html = re.sub(
+            r'const RESPONSE_API_BASE = ".*?";',
+            f'const RESPONSE_API_BASE = {js(cloud_config["apiBase"])};',
+            html, count=1,
+        )
+        html = re.sub(
+            r'const RESPONSE_SITE_KEY = ".*?";',
+            f'const RESPONSE_SITE_KEY = {js(cloud_config["siteKey"])};',
+            html, count=1,
+        )
 
     # 標題列
     html = re.sub(
@@ -172,6 +189,9 @@ def main(argv):
     if not TEMPLATE.exists():
         sys.exit(f"找不到播放器範本：{TEMPLATE}\n請確認技能 ai-dialogue-podcast-builder 已在 .claude/skills/ 底下。")
 
+    cloud_mode = "--cloud" in argv
+    argv = [a for a in argv if a != "--cloud"]
+
     targets = [Path(a) for a in argv] or sorted(SCRIPT_DIR.glob("*.json"))
     if not targets:
         sys.exit(f"{SCRIPT_DIR} 底下沒有腳本 JSON。")
@@ -187,6 +207,21 @@ def main(argv):
         print(f"✅ {path.name} → 網頁/{dest.name}（{len(ep['scenes'])} 幕 / {n} 段對話）")
 
     print("\n產生完成。雙擊「網頁」資料夾裡的 .html 就能播放，不需要安裝任何東西。")
+
+    if cloud_mode:
+        if not CLOUD_CONFIG.exists():
+            sys.exit(
+                f"\n--cloud 需要 {CLOUD_CONFIG} 這個檔案（不進版控），"
+                "裡面放 apiBase 跟 siteKey。"
+            )
+        cloud_config = json.loads(CLOUD_CONFIG.read_text(encoding="utf-8"))
+        CLOUD_OUT_DIR.mkdir(exist_ok=True)
+        print(f"\n另外產生連得到雲端的版本（{CLOUD_OUT_DIR.name}/，不會進 git）：")
+        for path in targets:
+            ep = json.loads(path.read_text(encoding="utf-8"))
+            dest = CLOUD_OUT_DIR / out_name(ep)
+            dest.write_text(render(ep, template, cloud_config), encoding="utf-8")
+            print(f"☁️  {path.name} → {CLOUD_OUT_DIR.name}/{dest.name}")
 
 
 if __name__ == "__main__":

@@ -40,12 +40,31 @@ npx wrangler deploy
 https://weekly-briefing-responses.<你的帳號>.workers.dev
 ```
 
-把這個網址、還有你在步驟 3 設定的 SITE_KEY，回報給 Claude，接下來會把它們
-填進播放器跟文字雲頁面裡，讓兩邊都能連到這個 Worker。
+## 部署完成後：把網址跟金鑰接到播放器
+
+**這個 repo 是公開的**，Worker 網址跟 SITE_KEY 絕對不能直接寫進會被 commit 的檔案
+（`.claude/skills/ai-dialogue-podcast-builder/assets/template.html`、`tools/週會宣導/網頁/`）。
+正確做法：
+
+1. 在這個資料夾（`cloudflare/`）建立 `local-config.json`（已經在 `.gitignore` 裡，
+   絕對不會被 commit）：
+   ```json
+   {
+     "apiBase": "https://weekly-briefing-responses.<你的帳號>.workers.dev",
+     "siteKey": "你在步驟 3 設定的那組值"
+   }
+   ```
+2. 回到 `tools/週會宣導/` 執行：
+   ```bash
+   python3 產生網頁.py --cloud
+   ```
+   這會多產生一份**連得到雲端**的網頁到 `網頁-雲端版/`（同樣在 `.gitignore` 裡，
+   不會進 git）。實際開會用這份，`網頁/` 底下公開的那份維持零連線的乾淨版本。
 
 ## 之後要更新 Worker 程式碼時
 
 改完 `worker.js` 之後，重新執行 `npx wrangler deploy` 就會更新雲端上的版本。
+網址跟金鑰不會變，不需要重跑 `--cloud`。
 
 ## 誠實說明
 
