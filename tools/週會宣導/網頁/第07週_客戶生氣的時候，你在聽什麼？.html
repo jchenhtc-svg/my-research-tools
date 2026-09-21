@@ -102,6 +102,14 @@ h1{margin:6px 0 2px;font-size:24px;font-weight:900;letter-spacing:.01em;line-hei
 .qrImg{width:120px;height:120px;border:2px solid var(--line);border-radius:8px;background:#fff;padding:4px}
 .qrCaption{margin-top:6px;font-size:11.5px;color:var(--sub)}
 
+/* 動態顯示大家已經送出的回應（僅雲端版；本機版 RESPONSE_API_BASE 是空字串，整段不會出現） */
+.communityBlock{margin-top:14px;padding-top:14px;border-top:1px dashed #ccc}
+.communityHead{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:var(--sub);font-weight:700;margin-bottom:8px}
+.communityRefresh{font-size:11px;color:var(--sub);background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;font-family:inherit}
+.communityCloud{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;justify-content:center;min-height:34px;padding:6px 4px}
+.communityCloud .word{font-weight:800;line-height:1.3}
+.communityEmpty{font-size:12px;color:var(--sub);text-align:center;padding:6px 0;width:100%}
+
 .charWrap{position:relative;flex:1;display:flex;align-items:flex-end;justify-content:center;padding:10px 20px 20px;left:auto;bottom:auto;transform:none}
 .charSvg{width:180px;height:204px;display:block;filter:none}
 
@@ -423,6 +431,7 @@ let i=0, auto=false;
 let onEndCard=false;
 let actionSeq=0; // bumped by every next()/prev()/playFrom() step so a stale, already-
                   // scheduled flashRender/showEndCard timer can tell it's been superseded
+let communityPollTimer=null; // polls /responses while the end card is showing; cleared in render()
 let zhVoices=[];
 let cfg = {};
 
@@ -441,6 +450,7 @@ const who=document.getElementById("count"),
 
 function render(){
   onEndCard = false;
+  if(communityPollTimer){ clearInterval(communityPollTimer); communityPollTimer = null; }
   const role = d[i][0], meta = ROLES[role], p = PANELS[i];
 
   bgLayer.className = "bgLayer bg-" + p.bg;
@@ -665,6 +675,7 @@ async function submitResponse(){
       if(!res.ok) throw new Error("HTTP " + res.status);
       inputEl.value = "";
       note.textContent = "已送出，感謝分享！（已同步到雲端）";
+      loadCommunityResponses(); // 馬上刷新一次，讓自己的回應立刻反映在下面的統計裡
       return;
     } catch(e){
       // 連不上（離線、被擋、Worker 掛了……）就退回本機下載，不讓回應憑空消失
@@ -678,6 +689,59 @@ async function submitResponse(){
   downloadResponseLocally(payload);
   inputEl.value = "";
   note.textContent = "已送出，感謝分享！（檔案存到瀏覽器的下載資料夾）";
+}
+
+// 跟 文字雲.html 用同一套簡化統計法：連續兩個字的字詞組合，不是真正的中文斷詞
+const COMMUNITY_STOPWORDS = new Set([
+  "的一","一次","這個","那個","我們","你們","他們","不會","沒有","就是","還是",
+  "但是","因為","所以","如果","可以","不要","一下","一點","什麼","怎麼","這樣",
+  "那樣","覺得","知道","不知","的時","時候","下次","最近","有沒","沒哪"
+]);
+function communityBigrams(text){
+  const cleaned = String(text).replace(/[\s，。！？、「」『』（）()\[\]{}\.,!?;:~—－_/\\]/g, "");
+  const grams = [];
+  for(let k = 0; k < cleaned.length - 1; k++){
+    const g = cleaned.slice(k, k + 2);
+    if(!COMMUNITY_STOPWORDS.has(g) && /[一-鿿]/.test(g)) grams.push(g);
+  }
+  return grams;
+}
+
+async function loadCommunityResponses(){
+  const countEl = document.getElementById("communityCount");
+  const cloudEl = document.getElementById("communityCloud");
+  if(!countEl || !cloudEl) return; // 使用者已經離開結尾畫面
+  countEl.textContent = "大家的回應載入中…";
+  try{
+    const res = await fetch(RESPONSE_API_BASE + "/responses?episode=" + encodeURIComponent(EPISODE_LABEL), {
+      headers: { "X-Site-Key": RESPONSE_SITE_KEY }
+    });
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    const rows = (data.responses || []).filter(r => r.response);
+    if(!onEndCard) return; // 抓資料的這段時間使用者已經離開結尾畫面，不要再更新畫面
+    countEl.textContent = `目前 ${rows.length} 則回應`;
+    const freq = {};
+    rows.forEach(r => communityBigrams(r.response).forEach(g => { freq[g] = (freq[g] || 0) + 1; }));
+    const entries = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 30);
+    if(entries.length === 0){
+      cloudEl.innerHTML = rows.length
+        ? `<div class="communityEmpty">回應內容還太短，抓不到重複的字詞組合</div>`
+        : `<div class="communityEmpty">還沒有人回應，當第一個吧！</div>`;
+      return;
+    }
+    const maxCount = entries[0][1];
+    const colors = ["#8ecae6", "#c8961e", "#3949ab", "#ec6fa0", "#5fb0ff", "#d99a00"];
+    cloudEl.innerHTML = entries.map(([word, count]) => {
+      const size = 12 + Math.round((count / maxCount) * 18); // 12px ~ 30px
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      return `<span class="word" style="font-size:${size}px;color:${color}" title="出現 ${count} 次">${word}</span>`;
+    }).join("");
+  } catch(e){
+    if(!onEndCard) return;
+    countEl.textContent = "連不上雲端，晚點再試試看";
+    cloudEl.innerHTML = "";
+  }
 }
 
 function showEndCard(){
@@ -696,13 +760,23 @@ function showEndCard(){
     ? `<div class="qrBlock"><img src="${RESPONSE_QR_IMG}" alt="掃描用手機回答" class="qrImg">`
       + `<div class="qrCaption">或用手機掃描，直接在自己手機上回答</div></div>`
     : "";
+  const communityBlock = RESPONSE_API_BASE
+    ? `<div class="communityBlock" id="communityBlock">`
+      + `<div class="communityHead"><span id="communityCount">大家的回應載入中…</span>`
+      + `<button type="button" class="communityRefresh" onclick="loadCommunityResponses()">重新整理</button></div>`
+      + `<div class="communityCloud" id="communityCloud"></div></div>`
+    : "";
   speechBubble.innerHTML = `<div class="quoteLine">${GOLDEN_QUOTE}</div><div class="endQuestion">${MANAGER_QUESTION}</div>`
     + `<div class="responseBox"><textarea id="responseInput" class="responseInput" placeholder="打幾個字，說說你的想法……" maxlength="300"></textarea>`
     + `<button type="button" class="responseSubmit" onclick="submitResponse()">送出回應</button>`
-    + `<div class="responseNote" id="responseNote"></div>${qrBlock}</div>`;
+    + `<div class="responseNote" id="responseNote"></div>${qrBlock}${communityBlock}</div>`;
   who.textContent = "播放完畢 — 今日金句與主管互動問題（再按一次執行播放可從頭重播）";
   bar.style.width = "100%";
   speakGoldenQuote();
+  if(RESPONSE_API_BASE){
+    loadCommunityResponses();
+    communityPollTimer = setInterval(loadCommunityResponses, 20000); // 每 20 秒自動更新一次
+  }
 }
 
 function playFrom(){
