@@ -61,17 +61,27 @@ button:hover{background:var(--ink);color:#fff}
 
   <div class="masthead">
     <h1>週會宣導 — 回應文字雲</h1>
-    <div class="sub">把大家「送出回應」下載下來的 JSON 檔案選進來，這裡會統計常出現的字詞、畫成文字雲。全程在你的瀏覽器裡處理，不會連網、不會上傳到任何地方。</div>
+    <div class="sub">把大家的回應載進來，這裡會統計常出現的字詞、畫成文字雲。可以選本機檔案，也可以直接從 Cloudflare Worker 抓雲端資料。</div>
   </div>
 
   <div class="card">
-    <div class="sectionLabel">① 選擇回應檔案</div>
+    <div class="sectionLabel">① 選擇回應檔案（本機）</div>
     <div class="dropzone" id="dropzone">
       <div><b>點這裡選擇檔案</b>，或把檔案拖進來</div>
       <div class="hint">可以一次選很多個 .json 檔（就是播放器「送出回應」下載下來的那些檔案）</div>
       <input type="file" id="fileInput" multiple accept=".json,application/json">
     </div>
     <div class="statusRow" id="statusRow"></div>
+  </div>
+
+  <div class="card">
+    <div class="sectionLabel">① 或者：從雲端載入（Cloudflare Worker）</div>
+    <div class="controls" style="flex-direction:column;align-items:stretch">
+      <input type="text" id="apiBaseInput" placeholder="Worker 網址，例如 https://weekly-briefing-responses.xxx.workers.dev" style="border:2px solid var(--line);border-radius:8px;padding:8px 10px;font-family:var(--disp);font-size:13px">
+      <input type="text" id="siteKeyInput" placeholder="SITE_KEY（跟播放器裡設定的同一組）" style="border:2px solid var(--line);border-radius:8px;padding:8px 10px;font-family:var(--disp);font-size:13px">
+      <button type="button" id="cloudLoadBtn" style="align-self:flex-start">從雲端載入</button>
+    </div>
+    <div class="statusRow" id="cloudStatusRow"></div>
   </div>
 
   <div class="card">
@@ -221,6 +231,50 @@ dropzone.addEventListener("drop", (e) => { if(e.dataTransfer.files.length) handl
 
 document.getElementById("episodeFilter").addEventListener("change", renderAll);
 document.getElementById("rerollBtn").addEventListener("click", renderCloud);
+
+// ==== 從雲端載入（Cloudflare Worker）====
+const apiBaseInput = document.getElementById("apiBaseInput");
+const siteKeyInput = document.getElementById("siteKeyInput");
+try{
+  apiBaseInput.value = localStorage.getItem("wc_apiBase") || "";
+  siteKeyInput.value = localStorage.getItem("wc_siteKey") || "";
+} catch(e){ /* 私密瀏覽模式可能擋 localStorage，忽略即可 */ }
+
+function renderCloudStatus(msg, isError){
+  const row = document.getElementById("cloudStatusRow");
+  row.innerHTML = `<span class="pill${isError ? " warn" : ""}">${msg}</span>`;
+}
+
+document.getElementById("cloudLoadBtn").addEventListener("click", async () => {
+  const apiBase = apiBaseInput.value.trim().replace(/\/$/, "");
+  const siteKey = siteKeyInput.value.trim();
+  if(!apiBase){ renderCloudStatus("請先填 Worker 網址", true); return; }
+  try{ localStorage.setItem("wc_apiBase", apiBase); localStorage.setItem("wc_siteKey", siteKey); } catch(e){}
+
+  renderCloudStatus("載入中……");
+  try{
+    const res = await fetch(apiBase + "/responses", { headers: { "X-Site-Key": siteKey } });
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    const rows = data.responses || [];
+    let added = 0;
+    rows.forEach(r => {
+      if(!r.response) return;
+      allResponses.push({
+        episode: r.episode || "（未知篇集）",
+        question: r.question || "",
+        response: r.response,
+        submittedAt: r.submitted_at || ""
+      });
+      added++;
+    });
+    renderCloudStatus(`已從雲端載入 ${added} 則回應`);
+    renderStatus(allResponses.length, 0);
+    loadFiles();
+  } catch(e){
+    renderCloudStatus("連不上這個 Worker 網址，確認網址跟 SITE_KEY 是否正確", true);
+  }
+});
 </script>
 </body>
 </html>

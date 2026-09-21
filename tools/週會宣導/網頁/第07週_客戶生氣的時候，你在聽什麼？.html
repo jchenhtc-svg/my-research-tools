@@ -407,6 +407,12 @@ function faceSVGWrapped(role, expr){
   return `<svg viewBox="0 0 150 170" width="150" height="170" xmlns="http://www.w3.org/2000/svg">${faceSVG(role, expr)}</svg>`;
 }
 
+// ==== Cloudflare Worker 設定（回應收集用）====
+// 部署好 Worker 後，把這兩個值換成你的，然後重新跑一次 產生網頁.py 讓全部集數套用。
+// RESPONSE_API_BASE 留空（""）的話，送出回應會直接退回本機下載，不會嘗試連網。
+const RESPONSE_API_BASE = ""; // 例如 "https://weekly-briefing-responses.xxx.workers.dev"
+const RESPONSE_SITE_KEY = ""; // 部署時用 `npx wrangler secret put SITE_KEY` 設定的同一組值
+
 let i=0, auto=false;
 let onEndCard=false;
 let actionSeq=0; // bumped by every next()/prev()/playFrom() step so a stale, already-
@@ -611,7 +617,25 @@ function speakGoldenQuote(){
 // a plain <a download> — no fetch(), no server, no upload anywhere. Whoever
 // wants these collected can point the browser's default download folder at
 // a shared drive (e.g. a mapped NAS folder); this function never has to know.
-function submitResponse(){
+function downloadResponseLocally(payload){
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type: "application/json"});
+  const url = URL.createObjectURL(blob);
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  const stamp = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}-`
+    + `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}-`
+    + String(Math.floor(1000 + Math.random()*9000));
+  const a = document.createElement("a");
+  a.href = url;
+  const safeLabel = EPISODE_LABEL.replace(/[\\/:*?"<>|]/g, "_"); // titles carry punctuation; Windows forbids these in filenames
+  a.download = `回應_${safeLabel}_${stamp}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+async function submitResponse(){
   const inputEl = document.getElementById("responseInput");
   const note = document.getElementById("responseNote");
   const text = inputEl.value.trim();
@@ -624,24 +648,28 @@ function submitResponse(){
     response: text,
     submittedAt: new Date().toISOString()
   };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], {type: "application/json"});
-  const url = URL.createObjectURL(blob);
 
-  const now = new Date();
-  const pad = (n) => String(n).padStart(2, "0");
-  const stamp = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}-`
-    + `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}-`
-    + String(Math.floor(1000 + Math.random()*9000));
+  if(RESPONSE_API_BASE){
+    try{
+      const res = await fetch(RESPONSE_API_BASE + "/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Site-Key": RESPONSE_SITE_KEY },
+        body: JSON.stringify(payload)
+      });
+      if(!res.ok) throw new Error("HTTP " + res.status);
+      inputEl.value = "";
+      note.textContent = "已送出，感謝分享！（已同步到雲端）";
+      return;
+    } catch(e){
+      // 連不上（離線、被擋、Worker 掛了……）就退回本機下載，不讓回應憑空消失
+      downloadResponseLocally(payload);
+      inputEl.value = "";
+      note.textContent = "雲端連不上，改存成本機檔案了，感謝分享！";
+      return;
+    }
+  }
 
-  const a = document.createElement("a");
-  a.href = url;
-  const safeLabel = EPISODE_LABEL.replace(/[\\/:*?"<>|]/g, "_"); // titles carry punctuation; Windows forbids these in filenames
-  a.download = `回應_${safeLabel}_${stamp}.json`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-
+  downloadResponseLocally(payload);
   inputEl.value = "";
   note.textContent = "已送出，感謝分享！（檔案存到瀏覽器的下載資料夾）";
 }
