@@ -89,7 +89,8 @@ h1{margin:6px 0 2px;font-size:24px;font-weight:900;letter-spacing:.01em;line-hei
 .speechBubble.final{text-align:center;padding-top:10px}
 .speechBubble.final::before{display:none}
 .speechBubble.final .quoteLine{font-size:21px;color:var(--ink);font-weight:900;line-height:1.55}
-.speechBubble.final .endQuestion{margin-top:16px;padding-top:16px;border-top:2px dashed var(--line);color:var(--sub);font-size:14px;font-weight:600;line-height:1.7}
+.speechBubble.final .endQuestion{margin-top:16px;padding-top:16px;border-top:2px dashed var(--line);color:var(--ink);font-size:18px;font-weight:800;line-height:1.6;opacity:0;animation:questionRise .5s ease .2s forwards}
+@keyframes questionRise{0%{opacity:0;transform:translateY(12px)}100%{opacity:1;transform:translateY(0)}}
 
 .charWrap{position:relative;flex:1;display:flex;align-items:flex-end;justify-content:center;padding:10px 20px 20px;left:auto;bottom:auto;transform:none}
 .charSvg{width:180px;height:204px;display:block;filter:none}
