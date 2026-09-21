@@ -13,10 +13,13 @@
                                               # 這兩個都在 .gitignore 裡，絕不會進 git）
 """
 
+import base64
+import io
 import json
 import re
 import sys
 from pathlib import Path
+from urllib.parse import quote
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parent.parent
@@ -128,6 +131,31 @@ function togglePrep(){
 """
 
 
+def plain_text(html_fragment):
+    """把 golden_quote/manager_question 裡的 <br> 等標籤去掉，跟播放器 JS 端的處理邏輯對齊。"""
+    return re.sub(r"<[^>]+>", " ", html_fragment).strip()
+
+
+def make_qr_data_uri(url):
+    """用 qrcode 套件產生 SVG QR Code，回傳可以直接放進 <img src> 的 base64 data URI。
+    刻意不在瀏覽器裡用 JS 即時產生 QR Code（手刻編碼演算法容易做出「像但掃不出來」的圖），
+    改成這裡用成熟、驗證過的套件先產生好，包進雲端版網頁。"""
+    try:
+        import qrcode
+        import qrcode.image.svg
+    except ImportError:
+        sys.exit(
+            "--cloud 需要 qrcode 套件才能產生 QR Code：\n"
+            "    pip install qrcode\n"
+            "裝好之後重新執行一次 --cloud。"
+        )
+    img = qrcode.make(url, image_factory=qrcode.image.svg.SvgPathImage, box_size=10, border=2)
+    buf = io.BytesIO()
+    img.save(buf)
+    b64 = base64.b64encode(buf.getvalue()).decode("ascii")
+    return f"data:image/svg+xml;base64,{b64}"
+
+
 def render(ep, template, cloud_config=None):
     start = template.index(DATA_START)
     end = template.index(DATA_END)
@@ -142,6 +170,24 @@ def render(ep, template, cloud_config=None):
         html = re.sub(
             r'const RESPONSE_SITE_KEY = ".*?";',
             f'const RESPONSE_SITE_KEY = {js(cloud_config["siteKey"])};',
+            html, count=1,
+        )
+        episode_label = f'{ep_num(ep)}_{ep["title"]}'
+        # 只帶 ep（集數標籤），不帶完整問題文字：CJK 經過 URL 編碼會膨脹約 9 倍，
+        # 問題全文塞進去會讓 QR Code 密度太高、印出來/顯示在小尺寸時掃不出來。
+        # 手機頁面改用通用提示語，因為看的人剛剛已經在共用畫面上看過/聽過問題了。
+        respond_url = (
+            cloud_config["apiBase"].rstrip("/") + "/respond"
+            + f"?ep={quote(episode_label)}"
+        )
+        html = re.sub(
+            r'const RESPONSE_QR_IMG = ".*?";',
+            f'const RESPONSE_QR_IMG = {js(make_qr_data_uri(respond_url))};',
+            html, count=1,
+        )
+        html = re.sub(
+            r'const RESPONSE_QR_URL = ".*?";',
+            f'const RESPONSE_QR_URL = {js(respond_url)};',
             html, count=1,
         )
 
