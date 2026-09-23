@@ -46,11 +46,13 @@ def build_data_block(ep):
 
     role_lines = []
     for r in roles:
+        voice_pref = f', voicePref:{js(r["voicePref"].lower())}' if r.get("voicePref") else ""
         role_lines.append(
             '  {name}: {{key:"{key}", color:"{color}", basePitch:{pitch:.2f}, '
-            'baseRate:{rate:.2f}, avatar:"{avatar}", side:"{side}"}}'.format(
+            'baseRate:{rate:.2f}, avatar:"{avatar}", side:"{side}"{voice_pref}}}'.format(
                 name=js(r["name"]), key=r["key"], color=r["color"],
                 pitch=r["pitch"], rate=r["rate"], avatar=r["avatar"], side=r["side"],
+                voice_pref=voice_pref,
             )
         )
 

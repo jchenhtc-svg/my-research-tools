@@ -5,65 +5,246 @@
   "title": "現場危機溝通與降溫術",
   "subtitle": "先處理心情，事情才有機會被解決　·　約 2～3 分鐘",
   "roles": [
-    { "name": "主持人",     "key": "host", "color": "#8ecae6", "avatar": "主", "side": "center", "pitch": 1.00, "rate": 1.05, "expr": "calm",    "chip": "主持人 · 快、直接、有梗" },
-    { "name": "阿凱工程師", "key": "eng",  "color": "#c8961e", "avatar": "凱", "side": "left",   "pitch": 0.85, "rate": 1.10, "expr": "neutral", "chip": "阿凱 · 自嘲型工程師" },
-    { "name": "主管",       "key": "mgr",  "color": "#3949ab", "avatar": "管", "side": "right",  "pitch": 1.14, "rate": 0.98, "expr": "stern",   "chip": "主管 · 一句話戳重點" },
-    { "name": "客戶",       "key": "cli",  "color": "#ec6fa0", "avatar": "客", "side": "right",  "pitch": 1.30, "rate": 1.15, "expr": "angry",   "chip": "客戶 · 短、直接、不留情" }
+    {
+      "name": "主持人",
+      "key": "host",
+      "color": "#8ecae6",
+      "voicePref": "曉臻",
+      "avatar": "主",
+      "side": "center",
+      "pitch": 1.0,
+      "rate": 1.05,
+      "expr": "calm",
+      "chip": "主持人 · 快、直接、有梗"
+    },
+    {
+      "name": "阿凱工程師",
+      "key": "eng",
+      "color": "#c8961e",
+      "voicePref": "雲哲",
+      "avatar": "凱",
+      "side": "left",
+      "pitch": 0.85,
+      "rate": 1.1,
+      "expr": "neutral",
+      "chip": "阿凱 · 自嘲型工程師"
+    },
+    {
+      "name": "主管",
+      "key": "mgr",
+      "color": "#3949ab",
+      "voicePref": "曉雨",
+      "avatar": "管",
+      "side": "right",
+      "pitch": 1.14,
+      "rate": 0.98,
+      "expr": "stern",
+      "chip": "主管 · 一句話戳重點"
+    },
+    {
+      "name": "客戶",
+      "key": "cli",
+      "color": "#ec6fa0",
+      "voicePref": "曉雨",
+      "avatar": "客",
+      "side": "right",
+      "pitch": 1.3,
+      "rate": 1.15,
+      "expr": "angry",
+      "chip": "客戶 · 短、直接、不留情"
+    }
   ],
   "scenes": [
     {
-      "tag": "開場：先問一句", "bg": "studio", "icon": "question",
+      "tag": "開場：先問一句",
+      "bg": "studio",
+      "icon": "question",
       "lines": [
-        ["主持人", "客戶在現場氣到爆炸，你要先講什麼？", {"expr": "calm"}],
-        ["主持人", "如果你先講「技術原因」，先等著挨罵吧。", {"expr": "sheepish", "effect": "sweat"}]
+        [
+          "主持人",
+          "客戶在現場氣到爆炸，你要先講什麼？",
+          {
+            "expr": "calm"
+          }
+        ],
+        [
+          "主持人",
+          "如果你先講「技術原因」，先等著挨罵吧。",
+          {
+            "expr": "sheepish",
+            "effect": "sweat"
+          }
+        ]
       ]
     },
     {
-      "tag": "故事：10:30 的風暴", "bg": "workshop", "icon": "phoneAlert",
+      "tag": "故事：10:30 的風暴",
+      "bg": "workshop",
+      "icon": "phoneAlert",
       "lines": [
-        ["主持人", "週一早上，產線無預警停擺。", {"expr": "neutral"}],
-        ["客戶", "你們到底在搞什麼？每停一分鐘我們損失幾十萬！", {"expr": "angry", "effect": "impact", "sfx": "！"}],
-        ["阿凱工程師", "……", {"expr": "shocked"}]
+        [
+          "主持人",
+          "週一早上，產線無預警停擺。",
+          {
+            "expr": "neutral"
+          }
+        ],
+        [
+          "客戶",
+          "你們到底在搞什麼？每停一分鐘我們損失幾十萬！",
+          {
+            "expr": "angry",
+            "effect": "impact",
+            "sfx": "！"
+          }
+        ],
+        [
+          "阿凱工程師",
+          "……",
+          {
+            "expr": "shocked"
+          }
+        ]
       ]
     },
     {
-      "tag": "防禦地雷", "bg": "workshop", "icon": "question",
+      "tag": "防禦地雷",
+      "bg": "workshop",
+      "icon": "question",
       "lines": [
-        ["主持人", "這時候工程師最愛講：「我才剛到，怎麼知道？」", {"expr": "neutral"}],
-        ["主持人", "事實沒錯，但客戶聽到的是：沒人管我的死活。", {"expr": "stern"}]
+        [
+          "主持人",
+          "這時候工程師最愛講：「我才剛到，怎麼知道？」",
+          {
+            "expr": "neutral"
+          }
+        ],
+        [
+          "主持人",
+          "事實沒錯，但客戶聽到的是：沒人管我的死活。",
+          {
+            "expr": "stern"
+          }
+        ]
       ]
     },
     {
-      "tag": "怒火背後的恐懼", "bg": "office", "icon": "layers",
+      "tag": "怒火背後的恐懼",
+      "bg": "office",
+      "icon": "layers",
       "lines": [
-        ["主持人", "客戶的怒火，背後其實是四種怕。", {"expr": "calm"}],
-        ["主持人", "怕被老闆罵、怕損失擴大、怕沒人罩、怕沒人給答案。", {"expr": "confident"}],
-        ["主管", "先看懂他在怕什麼，才有辦法降溫。", {"expr": "stern"}]
+        [
+          "主持人",
+          "客戶的怒火，背後其實是四種怕。",
+          {
+            "expr": "calm"
+          }
+        ],
+        [
+          "主持人",
+          "怕被老闆罵、怕損失擴大、怕沒人罩、怕沒人給答案。",
+          {
+            "expr": "confident"
+          }
+        ],
+        [
+          "主管",
+          "先看懂他在怕什麼，才有辦法降溫。",
+          {
+            "expr": "stern"
+          }
+        ]
       ]
     },
     {
-      "tag": "降溫三步", "bg": "office", "icon": "checkCircle",
+      "tag": "降溫三步",
+      "bg": "office",
+      "icon": "checkCircle",
       "lines": [
-        ["主管", "第一步，先接住情緒。", {"expr": "stern"}],
-        ["阿凱工程師", "「我完全理解現在很急，我已經在查了。」", {"expr": "confident"}],
-        ["主管", "第二步，給明確時間。", {"expr": "stern"}],
-        ["阿凱工程師", "「15 分鐘後，我一定回報進度。」", {"expr": "confident"}],
-        ["主管", "第三步，過程透明。", {"expr": "stern"}],
-        ["阿凱工程師", "「硬體正常，現在鎖定通訊模組。」", {"expr": "confident"}]
+        [
+          "主管",
+          "第一步，先接住情緒。",
+          {
+            "expr": "stern"
+          }
+        ],
+        [
+          "阿凱工程師",
+          "「我完全理解現在很急，我已經在查了。」",
+          {
+            "expr": "confident"
+          }
+        ],
+        [
+          "主管",
+          "第二步，給明確時間。",
+          {
+            "expr": "stern"
+          }
+        ],
+        [
+          "阿凱工程師",
+          "「15 分鐘後，我一定回報進度。」",
+          {
+            "expr": "confident"
+          }
+        ],
+        [
+          "主管",
+          "第三步，過程透明。",
+          {
+            "expr": "stern"
+          }
+        ],
+        [
+          "阿凱工程師",
+          "「硬體正常，現在鎖定通訊模組。」",
+          {
+            "expr": "confident"
+          }
+        ]
       ],
-      "bullets": ["① 先接住情緒", "② 給明確時間", "③ 過程透明"]
-    },
-    {
-      "tag": "說話的藝術", "bg": "studio", "icon": "checkCircle",
-      "lines": [
-        ["主持人", "「不知道多久會好」是地雷。", {"expr": "stern"}],
-        ["主持人", "「20 分鐘後更新進度」才是專業。", {"expr": "spark", "effect": "spark"}]
+      "bullets": [
+        "① 先接住情緒",
+        "② 給明確時間",
+        "③ 過程透明"
       ]
     },
     {
-      "tag": "結尾：沉著就是安全感", "bg": "spotlight", "icon": "star",
+      "tag": "說話的藝術",
+      "bg": "studio",
+      "icon": "checkCircle",
       "lines": [
-        ["主持人", "現場越亂，工程師的沉著，就是客戶的安全感。", {"expr": "spark", "effect": "spark"}]
+        [
+          "主持人",
+          "「不知道多久會好」是地雷。",
+          {
+            "expr": "stern"
+          }
+        ],
+        [
+          "主持人",
+          "「20 分鐘後更新進度」才是專業。",
+          {
+            "expr": "spark",
+            "effect": "spark"
+          }
+        ]
+      ]
+    },
+    {
+      "tag": "結尾：沉著就是安全感",
+      "bg": "spotlight",
+      "icon": "star",
+      "lines": [
+        [
+          "主持人",
+          "現場越亂，工程師的沉著，就是客戶的安全感。",
+          {
+            "expr": "spark",
+            "effect": "spark"
+          }
+        ]
       ]
     }
   ],

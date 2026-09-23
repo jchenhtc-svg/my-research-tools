@@ -5,69 +5,276 @@
   "title": "厲害的工程師，敢說「我不知道」",
   "subtitle": "裝懂比不會更麻煩　·　約 2～3 分鐘",
   "roles": [
-    { "name": "主持人",     "key": "host", "color": "#8ecae6", "avatar": "主", "side": "center", "pitch": 1.00, "rate": 1.05, "expr": "calm",    "chip": "主持人 · 快、直接、有梗" },
-    { "name": "阿凱工程師", "key": "eng",  "color": "#c8961e", "avatar": "凱", "side": "left",   "pitch": 0.85, "rate": 1.10, "expr": "neutral", "chip": "阿凱 · 自嘲型工程師" },
-    { "name": "主管",       "key": "mgr",  "color": "#3949ab", "avatar": "管", "side": "right",  "pitch": 1.14, "rate": 0.98, "expr": "stern",   "chip": "主管 · 一句話戳重點" },
-    { "name": "客戶",       "key": "cli",  "color": "#ec6fa0", "avatar": "客", "side": "right",  "pitch": 1.30, "rate": 1.15, "expr": "angry",   "chip": "客戶 · 短、直接、不留情" }
+    {
+      "name": "主持人",
+      "key": "host",
+      "color": "#8ecae6",
+      "voicePref": "曉臻",
+      "avatar": "主",
+      "side": "center",
+      "pitch": 1.0,
+      "rate": 1.05,
+      "expr": "calm",
+      "chip": "主持人 · 快、直接、有梗"
+    },
+    {
+      "name": "阿凱工程師",
+      "key": "eng",
+      "color": "#c8961e",
+      "voicePref": "雲哲",
+      "avatar": "凱",
+      "side": "left",
+      "pitch": 0.85,
+      "rate": 1.1,
+      "expr": "neutral",
+      "chip": "阿凱 · 自嘲型工程師"
+    },
+    {
+      "name": "主管",
+      "key": "mgr",
+      "color": "#3949ab",
+      "voicePref": "曉雨",
+      "avatar": "管",
+      "side": "right",
+      "pitch": 1.14,
+      "rate": 0.98,
+      "expr": "stern",
+      "chip": "主管 · 一句話戳重點"
+    },
+    {
+      "name": "客戶",
+      "key": "cli",
+      "color": "#ec6fa0",
+      "voicePref": "曉雨",
+      "avatar": "客",
+      "side": "right",
+      "pitch": 1.3,
+      "rate": 1.15,
+      "expr": "angry",
+      "chip": "客戶 · 短、直接、不留情"
+    }
   ],
   "scenes": [
     {
-      "tag": "開場：先問一句", "bg": "studio", "icon": "question",
+      "tag": "開場：先問一句",
+      "bg": "studio",
+      "icon": "question",
       "lines": [
-        ["主持人", "你有沒有遇過，工程師明明不確定，還硬要裝懂？", {"expr": "neutral"}],
-        ["主持人", "老實說，我就是那種人。", {"expr": "sheepish", "effect": "sweat"}],
-        ["主持人", "而且裝懂的下場，通常比不會更慘。", {"expr": "stern"}]
+        [
+          "主持人",
+          "你有沒有遇過，工程師明明不確定，還硬要裝懂？",
+          {
+            "expr": "neutral"
+          }
+        ],
+        [
+          "主持人",
+          "老實說，我就是那種人。",
+          {
+            "expr": "sheepish",
+            "effect": "sweat"
+          }
+        ],
+        [
+          "主持人",
+          "而且裝懂的下場，通常比不會更慘。",
+          {
+            "expr": "stern"
+          }
+        ]
       ]
     },
     {
-      "tag": "故事：憑感覺回答", "bg": "phone", "icon": "phoneAlert",
+      "tag": "故事：憑感覺回答",
+      "bg": "phone",
+      "icon": "phoneAlert",
       "lines": [
-        ["阿凱工程師", "有一次客戶問我一個新機型的問題，我其實沒碰過。", {"expr": "neutral"}],
-        ["阿凱工程師", "但我還是憑感覺回答了。", {"expr": "confident"}],
-        ["客戶", "你剛剛講的跟說明書完全不一樣，你到底有沒有用過這台？！", {"expr": "angry", "effect": "impact", "sfx": "！"}],
-        ["阿凱工程師", "……", {"expr": "shocked"}]
+        [
+          "阿凱工程師",
+          "有一次客戶問我一個新機型的問題，我其實沒碰過。",
+          {
+            "expr": "neutral"
+          }
+        ],
+        [
+          "阿凱工程師",
+          "但我還是憑感覺回答了。",
+          {
+            "expr": "confident"
+          }
+        ],
+        [
+          "客戶",
+          "你剛剛講的跟說明書完全不一樣，你到底有沒有用過這台？！",
+          {
+            "expr": "angry",
+            "effect": "impact",
+            "sfx": "！"
+          }
+        ],
+        [
+          "阿凱工程師",
+          "……",
+          {
+            "expr": "shocked"
+          }
+        ]
       ]
     },
     {
-      "tag": "主管一句話", "bg": "office", "icon": "question",
+      "tag": "主管一句話",
+      "bg": "office",
+      "icon": "question",
       "lines": [
-        ["主管", "你剛剛為什麼不說你不知道？", {"expr": "stern"}],
-        ["阿凱工程師", "怕被覺得不專業。", {"expr": "sheepish", "effect": "sweat"}],
-        ["主管", "裝懂被拆穿，才是真的不專業。", {"expr": "stern"}]
+        [
+          "主管",
+          "你剛剛為什麼不說你不知道？",
+          {
+            "expr": "stern"
+          }
+        ],
+        [
+          "阿凱工程師",
+          "怕被覺得不專業。",
+          {
+            "expr": "sheepish",
+            "effect": "sweat"
+          }
+        ],
+        [
+          "主管",
+          "裝懂被拆穿，才是真的不專業。",
+          {
+            "expr": "stern"
+          }
+        ]
       ]
     },
     {
-      "tag": "厲害的定義", "bg": "office", "icon": "layers",
+      "tag": "厲害的定義",
+      "bg": "office",
+      "icon": "layers",
       "lines": [
-        ["主持人", "厲害的工程師，不是什麼都會。", {"expr": "neutral"}],
-        ["主持人", "是很清楚自己哪裡不會，然後老實講出來。", {"expr": "spark", "effect": "spark"}],
-        ["主持人", "這句話講出來，反而讓人更信任你。", {"expr": "confident"}]
+        [
+          "主持人",
+          "厲害的工程師，不是什麼都會。",
+          {
+            "expr": "neutral"
+          }
+        ],
+        [
+          "主持人",
+          "是很清楚自己哪裡不會，然後老實講出來。",
+          {
+            "expr": "spark",
+            "effect": "spark"
+          }
+        ],
+        [
+          "主持人",
+          "這句話講出來，反而讓人更信任你。",
+          {
+            "expr": "confident"
+          }
+        ]
       ]
     },
     {
-      "tag": "別家怎麼做", "bg": "studio", "icon": "checkCircle",
+      "tag": "別家怎麼做",
+      "bg": "studio",
+      "icon": "checkCircle",
       "lines": [
-        ["主持人", "醫療現場也一樣：敢承認「我不確定」，比硬撐更能避免出錯。", {"expr": "confident"}],
-        ["主持人", "說「我不知道，我查一下」，不會扣分，硬凹才會。", {"expr": "spark"}]
+        [
+          "主持人",
+          "醫療現場也一樣：敢承認「我不確定」，比硬撐更能避免出錯。",
+          {
+            "expr": "confident"
+          }
+        ],
+        [
+          "主持人",
+          "說「我不知道，我查一下」，不會扣分，硬凹才會。",
+          {
+            "expr": "spark"
+          }
+        ]
       ]
     },
     {
-      "tag": "記住三件事", "bg": "studio", "icon": "checkCircle",
+      "tag": "記住三件事",
+      "bg": "studio",
+      "icon": "checkCircle",
       "lines": [
-        ["主持人", "所以只要記住三件事。", {"expr": "calm"}],
-        ["主持人", "不確定，先說不確定。", {"expr": "confident"}],
-        ["主持人", "說你會回去確認，並給一個時間點。", {"expr": "confident"}],
-        ["主持人", "確認完，一定要回頭跟客戶說。", {"expr": "confident"}]
+        [
+          "主持人",
+          "所以只要記住三件事。",
+          {
+            "expr": "calm"
+          }
+        ],
+        [
+          "主持人",
+          "不確定，先說不確定。",
+          {
+            "expr": "confident"
+          }
+        ],
+        [
+          "主持人",
+          "說你會回去確認，並給一個時間點。",
+          {
+            "expr": "confident"
+          }
+        ],
+        [
+          "主持人",
+          "確認完，一定要回頭跟客戶說。",
+          {
+            "expr": "confident"
+          }
+        ]
       ],
-      "bullets": ["① 不確定，先說不確定", "② 給一個確認的時間點", "③ 確認完一定要回頭說"]
+      "bullets": [
+        "① 不確定，先說不確定",
+        "② 給一個確認的時間點",
+        "③ 確認完一定要回頭說"
+      ]
     },
     {
-      "tag": "結尾：後來呢", "bg": "spotlight", "icon": "upgrade",
+      "tag": "結尾：後來呢",
+      "bg": "spotlight",
+      "icon": "upgrade",
       "lines": [
-        ["阿凱工程師", "後來我學會，不會就直接說：這個我不確定，我查完馬上回你。", {"expr": "confident"}],
-        ["阿凱工程師", "客戶反而覺得，這個人講的話比較可信。", {"expr": "spark", "effect": "spark"}],
-        ["主持人", "因為誠實，比什麼都會，更值得信任。", {"expr": "confident"}],
-        ["主持人", "設備可以晚查，但信任不能亂猜。", {"expr": "spark", "effect": "spark"}]
+        [
+          "阿凱工程師",
+          "後來我學會，不會就直接說：這個我不確定，我查完馬上回你。",
+          {
+            "expr": "confident"
+          }
+        ],
+        [
+          "阿凱工程師",
+          "客戶反而覺得，這個人講的話比較可信。",
+          {
+            "expr": "spark",
+            "effect": "spark"
+          }
+        ],
+        [
+          "主持人",
+          "因為誠實，比什麼都會，更值得信任。",
+          {
+            "expr": "confident"
+          }
+        ],
+        [
+          "主持人",
+          "設備可以晚查，但信任不能亂猜。",
+          {
+            "expr": "spark",
+            "effect": "spark"
+          }
+        ]
       ]
     }
   ],

@@ -273,10 +273,10 @@ select.voice-select{width:100%;font-size:12px;padding:8px 10px;border-radius:8px
 
 <script>
 const ROLES = {
-  "主持人": {key:"host", color:"#8ecae6", basePitch:1.00, baseRate:1.05, avatar:"主", side:"center"},
-  "阿凱工程師": {key:"eng", color:"#c8961e", basePitch:0.85, baseRate:1.10, avatar:"凱", side:"left"},
-  "主管": {key:"mgr", color:"#3949ab", basePitch:1.14, baseRate:0.98, avatar:"管", side:"right"},
-  "客戶": {key:"cli", color:"#ec6fa0", basePitch:1.30, baseRate:1.15, avatar:"客", side:"right"}
+  "主持人": {key:"host", color:"#8ecae6", basePitch:1.00, baseRate:1.05, avatar:"主", side:"center", voicePref:"曉臻"},
+  "阿凱工程師": {key:"eng", color:"#c8961e", basePitch:0.85, baseRate:1.10, avatar:"凱", side:"left", voicePref:"雲哲"},
+  "主管": {key:"mgr", color:"#3949ab", basePitch:1.14, baseRate:0.98, avatar:"管", side:"right", voicePref:"曉雨"},
+  "客戶": {key:"cli", color:"#ec6fa0", basePitch:1.30, baseRate:1.15, avatar:"客", side:"right", voicePref:"曉雨"}
 };
 const ROLE_ORDER = ["主持人", "阿凱工程師", "主管", "客戶"];
 const DEFAULT_EXPR = {"主持人": "calm", "阿凱工程師": "neutral", "主管": "stern", "客戶": "angry"};
