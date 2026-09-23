@@ -37,3 +37,7 @@ tools/*/.build-venv/
 tools/*/build/
 tools/*/dist/
 tools/*/*.spec
+
+# 週會宣導：Cloudflare 部署金鑰（repo 是公開的，SITE_KEY/Worker 網址絕不能進版控）
+tools/週會宣導/cloudflare/local-config.json
+tools/週會宣導/網頁-雲端版/
